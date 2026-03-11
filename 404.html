@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>JualanDapur</title>
+  <!-- GitHub Pages SPA redirect: arahkan 404 kembali ke index.html -->
+  <script>
+    const path = window.location.pathname;
+    const search = window.location.search;
+    const hash = window.location.hash;
+    // Pertahankan sub-path /jualan-dapur/ dalam redirect
+    const base = '/jualan-dapur/';
+    const redirectUrl = window.location.origin + base + '?redirect=' + encodeURIComponent(path + search + hash);
+    window.location.replace(redirectUrl);
+  </script>
+</head>
+<body>
+  <p>Mengalihkan...</p>
+</body>
+</html>

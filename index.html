@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#C8201A"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="JualanDapur"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192x192.png"/>
+<title>JualanDapur — Manajemen Produksi & Penjualan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFF8F5;--bg2:#FFF0EC;--card:#FFFFFF;--border:#EADDD7;--border2:#F0E4DF;--inp-bg:#FFF5F2;
+  --text:#2A0A05;--text2:#5C2018;--muted:#9A5A4A;--muted2:#C4897A;
+  --red:#C8201A;--green:#2E7D32;--orange:#E65100;--gold:#F59E0B;
+  --sidebar-w:240px;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent;}
+#app-root{height:100%}
+#app-root-inner{display:flex;height:100vh;overflow:hidden}
+#app-loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;gap:16px}
+#app-loading .spin{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideInR{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse2{0%,100%{opacity:.6}50%{opacity:1}}
+.blink{animation:pulse2 1.2s infinite}
+button,input,select,textarea{font-family:'DM Sans',sans-serif}
+.btn-prime{background:linear-gradient(135deg,#C8201A,#a01510);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:700;font-size:15px;min-height:44px;cursor:pointer;touch-action:manipulation;transition:opacity .15s}
+.btn-prime:active{opacity:.85}
+.btn-green{background:linear-gradient(135deg,#2E7D32,#1b5e20);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:700;font-size:15px;min-height:44px;cursor:pointer;touch-action:manipulation}
+.btn-out{background:transparent;border:1.5px solid var(--red);color:var(--muted);border-radius:10px;padding:10px 16px;font-weight:600;font-size:14px;min-height:44px;cursor:pointer;touch-action:manipulation}
+.btn-red{background:transparent;border:1.5px solid rgba(248,113,113,.4);color:#F87171;border-radius:10px;padding:10px 14px;font-weight:600;font-size:14px;min-height:44px;cursor:pointer;touch-action:manipulation}
+.btn-gold{background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:700;font-size:15px;min-height:44px;cursor:pointer;touch-action:manipulation}
+.wa-btn{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:10px;padding:11px 16px;font-weight:700;min-height:44px;cursor:pointer;touch-action:manipulation}
+.inp{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--inp-bg);color:var(--text2);font-size:15px;outline:none;min-height:44px;transition:border-color .2s,box-shadow .2s}
+.inp:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,32,26,.1)}
+.inp.error{border-color:#F87171}
+.sel{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--inp-bg);color:var(--text2);font-size:15px;outline:none;min-height:44px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239A5A4A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.sel:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,32,26,.1)}
+.lbl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px}
+.frow{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px}
+.box-hl{background:rgba(200,32,26,.06);border:1px solid rgba(200,32,26,.15);border-radius:12px;padding:12px 16px}
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;z-index:9999}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;animation:slideUp .25s ease}
+.nav-item{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:11px;cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;min-height:44px;touch-action:manipulation;transition:all .18s;border:1px solid transparent;user-select:none}
+.nav-item:hover{background:rgba(200,32,26,.06);color:var(--text2)}
+.nav-item.active{background:rgba(200,32,26,.12);color:var(--red);border:1px solid rgba(200,32,26,.2)}
+.sec-label{font-size:11px;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;padding:6px 13px 3px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.show{opacity:1;pointer-events:auto}
+.sidebar{width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--border);height:100vh;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;z-index:950}
+.main-scroll{flex:1;overflow-y:auto;height:100vh;padding-bottom:80px;-webkit-overflow-scrolling:touch}
+.topbar{display:none;align-items:center;gap:12px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;z-index:500;min-height:57px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;line-height:1}
+.stat-lbl{font-size:12px;color:var(--muted);font-weight:600}
+.chip{display:inline-flex;align-items:center;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid transparent;touch-action:manipulation;transition:all .15s}
+.chip.active{background:var(--red);color:#fff;border-color:var(--red)}
+.chip:not(.active){background:#fff;color:var(--muted);border-color:var(--border)}
+.divider{height:1px;background:var(--border);margin:10px 0}
+.row{display:flex;align-items:center;gap:8px}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.prod-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;touch-action:manipulation;user-select:none}
+.prod-card:active{border-color:var(--red);box-shadow:0 2px 12px rgba(200,32,26,.15)}
+.kasir-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:all .15s;touch-action:manipulation;user-select:none}
+.kasir-item.selected{border-color:var(--red);background:rgba(200,32,26,.04);box-shadow:0 2px 12px rgba(200,32,26,.12)}
+.kasir-item.disabled{opacity:.5;cursor:default}
+.qty-ctrl{display:flex;align-items:center;gap:8px}
+.qty-btn{width:44px;height:44px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--text2);touch-action:manipulation;flex-shrink:0}
+.qty-btn:active{background:var(--bg2)}
+.qty-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;min-width:24px;text-align:center}
+.alert-banner{border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:13px;font-weight:600;display:flex;align-items:flex-start;gap:8px}
+.alert-banner.red{background:rgba(248,113,113,.12);color:#B91C1C;border:1px solid rgba(248,113,113,.25)}
+.alert-banner.orange{background:rgba(230,81,0,.1);color:#E65100;border:1px solid rgba(230,81,0,.2)}
+.alert-banner.yellow{background:rgba(245,158,11,.1);color:#B45309;border:1px solid rgba(245,158,11,.2)}
+.struk{background:#fff;border:2px dashed var(--border);border-radius:16px;padding:20px;font-family:'Space Grotesk',monospace}
+.struk-sep{border:none;border-top:2px dashed var(--border);margin:10px 0}
+.fab{position:fixed;bottom:24px;right:20px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#C8201A,#a01510);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(200,32,26,.45);z-index:800;font-size:24px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .15s,box-shadow .15s}
+.fab:active{transform:scale(.93)}
+.progress-bar{height:6px;border-radius:3px;background:var(--border2);overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.onboarding{position:fixed;inset:0;background:var(--bg);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;animation:fadeIn .3s}
+.step-dots{display:flex;gap:8px;margin-bottom:28px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:all .2s}
+.step-dot.active{background:var(--red);width:24px;border-radius:4px}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:14px}
+.summary-row.total{border-top:2px solid var(--border);margin-top:6px;padding-top:12px;font-weight:800;font-size:16px}
+.tab-bar{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:16px}
+.tab{flex:1;padding:9px 4px;border-radius:9px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;touch-action:manipulation;transition:all .15s}
+.tab.active{background:#fff;color:var(--red);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.resep-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;touch-action:manipulation;transition:all .2s;user-select:none}
+.resep-card:hover,.resep-card:active{border-color:var(--red);box-shadow:0 2px 16px rgba(200,32,26,.15)}
+/* ── THERMAL PRINT STYLES ── */
+@media print{
+  body *{visibility:hidden}
+  #thermal-print-area,#thermal-print-area *{visibility:visible}
+  #thermal-print-area{position:fixed;left:0;top:0;width:80mm;font-family:'Courier New',monospace;font-size:9pt;color:#000;background:#fff;padding:4mm 3mm}
+  #thermal-print-area .t-center{text-align:center}
+  #thermal-print-area .t-right{text-align:right}
+  #thermal-print-area .t-bold{font-weight:bold}
+  #thermal-print-area .t-sep{border:none;border-top:1px dashed #000;margin:2mm 0}
+  #thermal-print-area .t-row{display:flex;justify-content:space-between}
+  #thermal-print-area .t-sm{font-size:7.5pt}
+  #thermal-print-area .t-lg{font-size:11pt;font-weight:bold}
+  #thermal-stiker-area,#thermal-stiker-area *{visibility:visible}
+  #thermal-stiker-area{position:fixed;left:0;top:0;width:62mm;font-family:'Courier New',monospace;font-size:8pt;color:#000;background:#fff;padding:2mm}
+}
+#thermal-print-area{display:none}
+#thermal-stiker-area{display:none}
+.resep-card.selected{border-color:var(--red);background:rgba(200,32,26,.04)}
+.tgl-group{font-size:11px;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 4px}
+.trx-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.bahan-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px}
+.bahan-row:last-child{border-bottom:none}
+.cek-ok{color:var(--green);font-weight:700}
+.cek-fail{color:#F87171;font-weight:700}
+.hpp-preview{background:rgba(230,81,0,.07);border:1px solid rgba(230,81,0,.2);border-radius:12px;padding:14px;margin-top:8px}
+.margin-ok{color:var(--green)}
+.margin-warn{color:var(--orange)}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:100px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;transition:height .4s}
+.bar-lbl{font-size:10px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.faq-item{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px}
+.faq-q{padding:14px;font-weight:700;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;touch-action:manipulation;background:#fff}
+.faq-a{padding:0 14px;font-size:13px;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;background:#fff}
+.faq-a.open{max-height:300px;padding:0 14px 14px}
+/* Extra bottom padding for content near FAB */
+.page-bottom-space{height:24px}
+/* Ensure page-pad doesn't clip */
+.page-pad{padding:18px 16px 24px}
+
+@media(max-width:768px){
+  .sidebar{position:fixed;left:-100%;top:0;bottom:0;transition:left .25s;z-index:950}
+  .sidebar.open{left:0}
+  .topbar{display:flex}
+  /* Topbar ~57px tinggi + FAB + safe area bawah */
+  .main-scroll{height:100vh;padding-top:57px;padding-bottom:96px!important}
+  .page-pad{padding:14px 14px 24px}
+  body{overflow:hidden}
+  /* Grid 2 kolom lebih rapat di HP kecil */
+  .grid2{gap:8px}
+  .grid2{gap:8px}
+  .stat-val{font-size:17px}
+  /* FAB lebih rendah agar tidak tutup konten */
+  .fab{bottom:18px;right:16px;width:52px;height:52px;font-size:22px}
+  /* Tombol di kartu lebih compact */
+  .btn-out,.btn-red,.btn-prime,.btn-green,.btn-gold{font-size:13px;padding:9px 12px}
+  /* Modal lebih aman dari notch/bar */
+  .modal{padding:18px 14px calc(28px + env(safe-area-inset-bottom));max-height:88vh}
+  /* Tab font */
+  .tab{font-size:12px;padding:8px 4px}
+  /* Chip filter */
+  .chip{padding:6px 11px;font-size:12px}
+}
+@media(min-width:769px){
+  #app-root-inner{display:flex;height:100vh;overflow:hidden}
+  .topbar{display:none!important}
+  .main-scroll{padding-bottom:80px}
+}
+</style>
+</head>
+<body>
+<div id="app-loading">
+  <div style="font-size:40px;margin-bottom:8px">🍱</div>
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;color:var(--red)">JualanDapur</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Memuat JualanDapur...</div>
+  <div class="spin"></div>
+</div>
+<div id="app-root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useEffect,useCallback,useRef,useMemo}=React;
+
+/* ── UTILS ─────────────────────────────────────────── */
+const fmt=n=>"Rp "+Math.round(n||0).toLocaleString("id-ID");
+const fmtRb=n=>{const v=Math.round(n||0);const abs=Math.abs(v);const sign=v<0?"-":"";return abs>=1000000?sign+(abs/1000000).toFixed(1).replace('.0','')+'jt':abs>=1000?sign+Math.round(abs/1000)+'rb':String(v);};
+const todayStr=new Date().toISOString().split("T")[0];
+const dAgo=d=>new Date(Date.now()-d*86400000).toISOString().split("T")[0];
+const dFrom=(base,d)=>new Date(new Date(base).getTime()+d*86400000).toISOString().split("T")[0];
+const diffDays=(a,b=todayStr)=>Math.floor((new Date(a)-new Date(b))/86400000);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const fmtTgl=d=>{if(!d)return"-";return new Date(d+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});};
+const pctStr=(a,b)=>b>0?Math.round((a/b)*100)+"%":"—";
+
+/* ── PERSIST HOOK ─────────────────────────────────── */
+function usePersist(key,seed){
+  const[state,setState]=useState(()=>{
+    try{const v=localStorage.getItem(key);if(v!==null)return JSON.parse(v);}catch{}
+    try{localStorage.setItem(key,JSON.stringify(seed));}catch{}
+    return seed;
+  });
+  const set=useCallback(v=>{
+    setState(prev=>{
+      const next=typeof v==='function'?v(prev):v;
+      try{localStorage.setItem(key,JSON.stringify(next));}catch{}
+      return next;
+    });
+  },[key]);
+  return[state,set];
+}
+
+/* ── SEED DATA ─────────────────────────────────────── */
+const SEED={
+  reseller:[
+    {id:"r1",nama:"Bu Rina — Warung Pak RT",hp:"081111111111",tipe:"Reseller",kota:"Depok",diskon:10},
+    {id:"r2",nama:"Pak Dedi — Katering Kantor",hp:"082222222222",tipe:"Reseller",kota:"Bogor",diskon:10},
+    {id:"r3",nama:"Toko Oleh-oleh Berkah",hp:"083333333333",tipe:"Retail",kota:"Jakarta",diskon:15},
+    {id:"r4",nama:"Mbak Susi — Tetangga",hp:"084444444444",tipe:"Ecer",kota:"Bekasi",diskon:0},
+  ],
+  bahanBaku:[
+    {id:"b1",nama:"Daging Sapi",satuan:"kg",stok:5,hargaBeli:150000,stokMin:3,emoji:"🥩"},
+    {id:"b2",nama:"Telur Ayam",satuan:"butir",stok:100,hargaBeli:2000,stokMin:30,emoji:"🥚"},
+    {id:"b3",nama:"Kentang",satuan:"kg",stok:8,hargaBeli:15000,stokMin:3,emoji:"🥔"},
+    {id:"b4",nama:"Daging Dendeng",satuan:"kg",stok:3,hargaBeli:130000,stokMin:2,emoji:"🥩"},
+    {id:"b5",nama:"Ikan Bilis",satuan:"kg",stok:2,hargaBeli:80000,stokMin:1,emoji:"🐟"},
+    {id:"b6",nama:"Paru Sapi",satuan:"kg",stok:2,hargaBeli:50000,stokMin:1,emoji:"🫀"},
+    {id:"b7",nama:"Santan Kara 200ml",satuan:"pcs",stok:20,hargaBeli:8000,stokMin:10,emoji:"🥛"},
+    {id:"b8",nama:"Bumbu Rendang",satuan:"pcs",stok:15,hargaBeli:25000,stokMin:5,emoji:"🌿"},
+    {id:"b9",nama:"Minyak Goreng 1L",satuan:"liter",stok:5,hargaBeli:18000,stokMin:2,emoji:"🫙"},
+    {id:"b10",nama:"Cabai Merah",satuan:"kg",stok:3,hargaBeli:40000,stokMin:1,emoji:"🌶️"},
+    {id:"b11",nama:"Pouch 150gr",satuan:"pcs",stok:200,hargaBeli:1200,stokMin:50,emoji:"📦"},
+    {id:"b12",nama:"Pouch 100gr",satuan:"pcs",stok:200,hargaBeli:1000,stokMin:50,emoji:"📦"},
+    {id:"b13",nama:"Pouch 125gr",satuan:"pcs",stok:200,hargaBeli:1100,stokMin:50,emoji:"📦"},
+    {id:"b14",nama:"Label/Sticker",satuan:"lembar",stok:300,hargaBeli:300,stokMin:50,emoji:"🏷️"},
+    {id:"b15",nama:"Gas LPG 3kg",satuan:"tabung",stok:3,hargaBeli:25000,stokMin:1,emoji:"🔵"},
+  ],
+  resep:[
+    {id:"rp1",namaProduk:"Rendang Sapi 150gr",emoji:"🥩",hasilPcs:30,beratPcs:150,
+      bahan:[{bid:"b1",qty:3,satuan:"kg"},{bid:"b7",qty:6,satuan:"pcs"},{bid:"b8",qty:3,satuan:"pcs"},{bid:"b9",qty:0.5,satuan:"liter"},{bid:"b11",qty:30,satuan:"pcs"},{bid:"b14",qty:30,satuan:"lembar"},{bid:"b15",qty:0.5,satuan:"tabung"}],
+      biayaTenaga:50000,biayaLain:15000},
+    {id:"rp2",namaProduk:"Rendang Telur 100gr",emoji:"🥚",hasilPcs:40,beratPcs:100,
+      bahan:[{bid:"b2",qty:50,satuan:"butir"},{bid:"b8",qty:2,satuan:"pcs"},{bid:"b10",qty:0.5,satuan:"kg"},{bid:"b9",qty:1,satuan:"liter"},{bid:"b12",qty:40,satuan:"pcs"},{bid:"b14",qty:40,satuan:"lembar"},{bid:"b15",qty:0.3,satuan:"tabung"}],
+      biayaTenaga:40000,biayaLain:10000},
+    {id:"rp3",namaProduk:"Kering Kentang 125gr",emoji:"🥔",hasilPcs:35,beratPcs:125,
+      bahan:[{bid:"b3",qty:4,satuan:"kg"},{bid:"b10",qty:0.5,satuan:"kg"},{bid:"b9",qty:2,satuan:"liter"},{bid:"b13",qty:35,satuan:"pcs"},{bid:"b14",qty:35,satuan:"lembar"},{bid:"b15",qty:0.3,satuan:"tabung"}],
+      biayaTenaga:35000,biayaLain:10000},
+    {id:"rp4",namaProduk:"Dendeng Balado 150gr",emoji:"🥩",hasilPcs:25,beratPcs:150,
+      bahan:[{bid:"b4",qty:3,satuan:"kg"},{bid:"b10",qty:1,satuan:"kg"},{bid:"b9",qty:0.5,satuan:"liter"},{bid:"b11",qty:25,satuan:"pcs"},{bid:"b14",qty:25,satuan:"lembar"},{bid:"b15",qty:0.5,satuan:"tabung"}],
+      biayaTenaga:50000,biayaLain:15000},
+    {id:"rp5",namaProduk:"Paru Balado 100gr",emoji:"🫀",hasilPcs:30,beratPcs:100,
+      bahan:[{bid:"b6",qty:2,satuan:"kg"},{bid:"b10",qty:0.8,satuan:"kg"},{bid:"b9",qty:0.5,satuan:"liter"},{bid:"b12",qty:30,satuan:"pcs"},{bid:"b14",qty:30,satuan:"lembar"},{bid:"b15",qty:0.3,satuan:"tabung"}],
+      biayaTenaga:40000,biayaLain:10000},
+  ],
+  produkJadi:[
+    {id:"pj1",resepId:"rp1",nama:"Rendang Sapi 150gr",emoji:"🥩",stok:25,hpp:0,hargaEcer:60000,hargaReseller:52000,exp:dFrom(todayStr,180)},
+    {id:"pj2",resepId:"rp2",nama:"Rendang Telur 100gr",emoji:"🥚",stok:30,hpp:0,hargaEcer:35000,hargaReseller:30000,exp:dFrom(todayStr,120)},
+    {id:"pj3",resepId:"rp3",nama:"Kering Kentang 125gr",emoji:"🥔",stok:40,hpp:0,hargaEcer:40000,hargaReseller:35000,exp:dFrom(todayStr,180)},
+    {id:"pj4",resepId:"rp4",nama:"Dendeng Balado 150gr",emoji:"🥩",stok:20,hpp:0,hargaEcer:65000,hargaReseller:56000,exp:dFrom(todayStr,150)},
+    {id:"pj5",resepId:"rp5",nama:"Paru Balado 100gr",emoji:"🫀",stok:15,hpp:0,hargaEcer:45000,hargaReseller:38000,exp:dFrom(todayStr,120)},
+  ],
+  batchProduksi:[
+    {id:"bp1",tgl:dAgo(5),resepId:"rp1",jumlahBatch:1,pcsJadi:28,pcsGagal:2,biayaBahan:1400000,biayaTenaga:50000,biayaLain:15000,totalBiaya:1465000,hppPerPcs:52321,catatan:"Batch perdana"},
+    {id:"bp2",tgl:dAgo(3),resepId:"rp2",jumlahBatch:1,pcsJadi:40,pcsGagal:0,biayaBahan:420000,biayaTenaga:40000,biayaLain:10000,totalBiaya:470000,hppPerPcs:11750,catatan:""},
+    {id:"bp3",tgl:dAgo(1),resepId:"rp3",jumlahBatch:1,pcsJadi:35,pcsGagal:0,biayaBahan:680000,biayaTenaga:35000,biayaLain:10000,totalBiaya:725000,hppPerPcs:20714,catatan:""},
+  ],
+  pembelianBahan:[
+    {id:"pb1",tgl:dAgo(7),supplier:"Pasar Kramat Jati",items:[{bid:"b1",nama:"Daging Sapi",qty:5,harga:150000,subtotal:750000},{bid:"b7",nama:"Santan Kara",qty:20,harga:8000,subtotal:160000}],total:910000},
+    {id:"pb2",tgl:dAgo(4),supplier:"Toko Kemasan Online",items:[{bid:"b11",nama:"Pouch 150gr",qty:200,harga:1200,subtotal:240000},{bid:"b12",nama:"Pouch 100gr",qty:200,harga:1000,subtotal:200000},{bid:"b14",nama:"Label/Sticker",qty:500,harga:300,subtotal:150000}],total:590000},
+  ],
+  penjualan:[],
+  pengeluaran:[
+    {id:"po1",tgl:dAgo(6),kat:"Kemasan & Label",desc:"Beli pouch & sticker batch baru",jml:590000},
+    {id:"po2",tgl:dAgo(4),kat:"Pengiriman",desc:"Ongkir ke reseller Bu Rina",jml:25000},
+    {id:"po3",tgl:dAgo(2),kat:"Operasional",desc:"Gas LPG 3 tabung",jml:75000},
+    {id:"po4",tgl:dAgo(1),kat:"Pemasaran",desc:"Cetak brosur & foto produk",jml:150000},
+  ],
+};
+
+/* ── TOAST ──────────────────────────────────────────── */
+function ToastContainer({toasts}){
+  const cfg={success:{bg:"#2E7D32",icon:"✅"},error:{bg:"#C8201A",icon:"❌"},warn:{bg:"#E65100",icon:"⚠️"},info:{bg:"#1565C0",icon:"ℹ️"}};
+  return <div style={{position:"fixed",top:68,right:16,zIndex:99998,display:"flex",flexDirection:"column",gap:8,pointerEvents:"none"}}>
+    {toasts.map(t=>{const c=cfg[t.type]||cfg.success;return<div key={t.id} style={{background:c.bg,color:"#fff",padding:"12px 16px",borderRadius:12,fontWeight:700,fontSize:14,display:"flex",alignItems:"center",gap:8,boxShadow:"0 4px 20px rgba(0,0,0,.3)",animation:"slideInR .25s ease",maxWidth:280}}><span>{c.icon}</span><span>{t.msg}</span></div>;})}
+  </div>;
+}
+
+/* ── KONFIRMASI MODAL ──────────────────────────────── */
+function KonfirmasiModal({data,onTutup}){
+  if(!data)return null;
+  return<div className="modal-bg" onClick={onTutup}><div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:400}}>
+    <div style={{textAlign:"center",padding:"8px 0 16px"}}>
+      <div style={{fontSize:40,marginBottom:12}}>⚠️</div>
+      <div style={{fontWeight:800,fontSize:17,color:"var(--text)",marginBottom:8}}>{data.judul}</div>
+      <div style={{fontSize:14,color:"var(--muted)",lineHeight:1.6}}>{data.pesan}</div>
+    </div>
+    <div style={{display:"flex",gap:10}}>
+      <button className="btn-out" onClick={onTutup} style={{flex:1}}>Batal</button>
+      <button onClick={()=>{data.onYa();onTutup();}} style={{flex:1,background:data.warnaYa||"#F87171",color:"#fff",border:"none",borderRadius:10,padding:12,fontWeight:700,fontSize:15,cursor:"pointer",minHeight:44}}>{data.labelYa||"Ya, Hapus"}</button>
+    </div>
+  </div></div>;
+}
+
+/* ── MODAL WRAPPER ─────────────────────────────────── */
+function Modal({title,onClose,children}){
+  return<div className="modal-bg" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div className="modal">
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+        <div style={{fontWeight:800,fontSize:17,color:"var(--text)"}}>{title}</div>
+        <button onClick={onClose} style={{background:"none",border:"none",color:"var(--muted)",cursor:"pointer",fontSize:22,minHeight:44,minWidth:44,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+      </div>
+      {children}
+    </div>
+  </div>;
+}
+
+/* ── BADGES ─────────────────────────────────────────── */
+function ExpBadge({exp}){
+  if(!exp)return null;
+  const d=diffDays(exp);
+  if(d<0)return<span className="badge blink" style={{background:"rgba(248,113,113,.15)",color:"#F87171"}}>💀 Expired</span>;
+  if(d<=3)return<span className="badge" style={{background:"rgba(248,113,113,.15)",color:"#F87171"}}>🚨 {d}hr</span>;
+  if(d<=7)return<span className="badge" style={{background:"rgba(251,146,60,.15)",color:"#FB923C"}}>⚠️ {d}hr</span>;
+  if(d<=21)return<span className="badge" style={{background:"rgba(252,211,77,.12)",color:"#F59E0B"}}>🕐 {d}hr</span>;
+  return<span className="badge" style={{background:"rgba(74,222,128,.12)",color:"#2E7D32"}}>✅ Aman</span>;
+}
+function StokBadge({stok,stokMin=5}){
+  if(stok===0)return<span className="badge" style={{background:"rgba(248,113,113,.15)",color:"#F87171"}}>Habis</span>;
+  if(stok<=stokMin)return<span className="badge" style={{background:"rgba(252,211,77,.12)",color:"#F59E0B"}}>⚠️ Hampir Habis</span>;
+  return null;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+const NAV=[
+  {sec:"HARIAN"},
+  {id:"dasbor",icon:"🏠",label:"Dasbor"},
+  {id:"kasir",icon:"🛒",label:"Kasir Penjualan"},
+  {id:"produksi",icon:"🍳",label:"Catat Produksi"},
+  {sec:"MANAJEMEN"},
+  {id:"stok",icon:"📦",label:"Stok & Produk"},
+  {id:"bahan",icon:"🧂",label:"Bahan Baku"},
+  {id:"resep",icon:"📋",label:"Resep"},
+  {id:"reseller",icon:"👥",label:"Reseller"},
+  {id:"pengeluaran",icon:"💸",label:"Pengeluaran"},
+  {sec:"LAPORAN"},
+  {id:"laporan",icon:"📊",label:"Laporan & Analitik"},
+  {id:"setelan",icon:"⚙️",label:"Setelan"},
+];
+
+function Sidebar({page,goTo,saldo,open}){
+  return<div className={`sidebar${open?" open":""}`}>
+    <div style={{padding:"18px 16px 12px"}}>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:18,color:"var(--red)"}}>🍱 JualanDapur</div>
+      <div style={{fontSize:11,color:"var(--muted)",marginTop:2}}>Dapur · Gudang · Kasir</div>
+    </div>
+    <div style={{padding:"0 8px",flex:1}}>
+      {NAV.map((n,i)=>n.sec
+        ?<div key={i} className="sec-label">{n.sec}</div>
+        :<div key={n.id} className={`nav-item${page===n.id?" active":""}`} onClick={()=>goTo(n.id)}>
+          <span style={{fontSize:16}}>{n.icon}</span><span>{n.label}</span>
+        </div>
+      )}
+    </div>
+    <div style={{padding:"12px 16px",borderTop:"1px solid var(--border)",margin:"8px 0 0"}}>
+      <div style={{fontSize:11,fontWeight:700,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>💼 Saldo Kas</div>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:20,color:"var(--green)",marginTop:4}}>{fmtRb(saldo)}</div>
+      <div style={{fontSize:11,color:"var(--muted)"}}>per hari ini ✓</div>
+    </div>
+  </div>;
+}
+
+/* ── ONBOARDING ─────────────────────────────────────── */
+function Onboarding({onDone,modalAwal,setModalAwal,namaUsaha,setNamaUsaha}){
+  const[step,setStep]=useState(0);
+  const[nm,setNm]=useState(namaUsaha);
+  const[modal,setModal]=useState(modalAwal||"3000000");
+  const[errNm,setErrNm]=useState("");
+  const[errModal,setErrModal]=useState("");
+  const next=()=>{
+    if(step===0){
+      if(!nm.trim()||nm.trim().length<2){setErrNm("Nama usaha minimal 2 karakter");return;}
+      setErrNm("");setNamaUsaha(nm.trim());
+    }
+    if(step===1){
+      if(modal===""||+modal<0){setErrModal("Modal awal tidak boleh negatif");return;}
+      setErrModal("");setModalAwal(+modal||0);
+    }
+    if(step<3)setStep(s=>s+1);
+  };
+  const steps=[
+    <div key={0} style={{textAlign:"center"}}>
+      <div style={{fontSize:56,marginBottom:16}}>🍱</div>
+      <h2 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:24,fontWeight:800,marginBottom:8}}>Selamat Datang!</h2>
+      <p style={{color:"var(--muted)",marginBottom:24,fontSize:14,lineHeight:1.6}}>Aplikasi manajemen produksi & penjualan untuk UMKM lauk siap saji Anda</p>
+      <div className="frow" style={{textAlign:"left"}}>
+        <label className="lbl">Nama Usaha Anda</label>
+        <input className={`inp${errNm?" error":""}`} value={nm} maxLength={60} onChange={e=>{setNm(e.target.value);setErrNm("");}} placeholder="Contoh: Dapur Bu Sari"/>
+        {errNm&&<div style={{fontSize:12,color:"#F87171",marginTop:4}}>⚠️ {errNm}</div>}
+      </div>
+    </div>,
+    <div key={1} style={{textAlign:"center"}}>
+      <div style={{fontSize:56,marginBottom:16}}>💰</div>
+      <h2 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:24,fontWeight:800,marginBottom:8}}>Modal Awal Kas</h2>
+      <p style={{color:"var(--muted)",marginBottom:24,fontSize:14,lineHeight:1.6}}>Berapa uang kas yang ada sekarang? Ini akan jadi saldo awal Anda</p>
+      <div className="frow" style={{textAlign:"left"}}>
+        <label className="lbl">Uang Kas (Rp)</label>
+        <input className={`inp${errModal?" error":""}`} type="number" min="0" value={modal} onChange={e=>{setModal(e.target.value);setErrModal("");}} placeholder="3000000"/>
+        {errModal&&<div style={{fontSize:12,color:"#F87171",marginTop:4}}>⚠️ {errModal}</div>}
+      </div>
+    </div>,
+    <div key={2} style={{textAlign:"center"}}>
+      <div style={{fontSize:56,marginBottom:16}}>🧂</div>
+      <h2 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:24,fontWeight:800,marginBottom:8}}>Resep Sudah Siap!</h2>
+      <p style={{color:"var(--muted)",marginBottom:24,fontSize:14,lineHeight:1.6}}>Kami sudah menyiapkan 5 resep contoh beserta bahan baku. Anda bisa edit kapan saja di menu Resep & Bahan Baku.</p>
+      <div style={{background:"rgba(200,32,26,.06)",border:"1px solid rgba(200,32,26,.15)",borderRadius:12,padding:14,textAlign:"left"}}>
+        {["🥩 Rendang Sapi 150gr","🥚 Rendang Telur 100gr","🥔 Kering Kentang 125gr","🥩 Dendeng Balado 150gr","🫀 Paru Balado 100gr"].map(r=><div key={r} style={{fontSize:13,padding:"4px 0",fontWeight:600}}>✅ {r}</div>)}
+      </div>
+    </div>,
+    <div key={3} style={{textAlign:"center"}}>
+      <div style={{fontSize:56,marginBottom:16}}>🚀</div>
+      <h2 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:24,fontWeight:800,marginBottom:8}}>Siap Mulai!</h2>
+      <p style={{color:"var(--muted)",marginBottom:24,fontSize:14,lineHeight:1.6}}>Dari mana Anda ingin mulai?</p>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        <button className="btn-prime" onClick={()=>{localStorage.setItem('jd2_onboarded','1');onDone('produksi');}}>🍳 Produksi Pertama</button>
+        <button className="btn-gold" onClick={()=>{localStorage.setItem('jd2_onboarded','1');onDone('kasir');}}>🛒 Catat Penjualan</button>
+        <button className="btn-out" onClick={()=>{localStorage.setItem('jd2_onboarded','1');onDone('stok');}}>📦 Cek Stok</button>
+      </div>
+    </div>,
+  ];
+  return<div className="onboarding">
+    <div style={{width:"100%",maxWidth:420}}>
+      <div className="step-dots" style={{justifyContent:"center"}}>{[0,1,2,3].map(i=><div key={i} className={`step-dot${step===i?" active":""}`}/>)}</div>
+      {steps[step]}
+      {step<3&&<button className="btn-prime" onClick={next} style={{width:"100%",marginTop:20}}>Lanjut →</button>}
+      {step>0&&step<3&&<button className="btn-out" onClick={()=>setStep(s=>s-1)} style={{width:"100%",marginTop:10}}>← Kembali</button>}
+    </div>
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 1 — DASBOR
+══════════════════════════════════════════════════════ */
+function Dasbor({produkJadi,bahanBaku,batchProduksi,penjualan,pengeluaran,pembelianBahan,goTo,showToast}){
+  const hariIni=penjualan.filter(t=>t.tgl===todayStr);
+  const omzetHariIni=hariIni.reduce((s,t)=>s+t.total,0);
+  const labaHariIni=hariIni.reduce((s,t)=>s+(t.items||[]).reduce((ss,i)=>ss+(i.harga-i.hpp)*i.qty,0),0);
+  const diproduksiHariIni=batchProduksi.filter(b=>b.tgl===todayStr).reduce((s,b)=>s+b.pcsJadi,0);
+  const stokTotal=produkJadi.reduce((s,p)=>s+p.stok,0);
+  const bahanKritis=bahanBaku.filter(b=>b.stok<=b.stokMin);
+  const produkExpiring=produkJadi.filter(p=>{const d=diffDays(p.exp);return d>=0&&d<=7;});
+  return<div className="page-pad">
+    <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22,marginBottom:4}}>Dasbor</div>
+    <div style={{fontSize:13,color:"var(--muted)",marginBottom:16}}>{fmtTgl(todayStr)}</div>
+
+    {bahanKritis.length>0&&<div className="alert-banner red">
+      <span>🚨</span><span>Stok bahan hampir habis: <b>{bahanKritis.map(b=>b.nama).join(", ")}</b></span>
+    </div>}
+    {produkExpiring.length>0&&<div className="alert-banner orange">
+      <span>⏳</span><span>Produk akan expired ≤7 hari: <b>{produkExpiring.map(p=>p.nama).join(", ")}</b></span>
+    </div>}
+
+    <div className="grid2" style={{marginBottom:16}}>
+      <div className="stat-card">
+        <div className="stat-lbl">💰 Omzet Hari Ini</div>
+        <div className="stat-val" style={{color:"var(--red)"}}>{fmtRb(omzetHariIni)}</div>
+        <div style={{fontSize:11,color:"var(--muted)",fontWeight:600,marginTop:2}}>{hariIni.length} transaksi</div>
+      </div>
+      <div className="stat-card">
+        <div className="stat-lbl">📈 Laba Kotor</div>
+        <div className="stat-val" style={{color:"var(--green)"}}>{fmtRb(labaHariIni)}</div>
+      </div>
+      <div className="stat-card">
+        <div className="stat-lbl">🍳 Diproduksi</div>
+        <div className="stat-val" style={{color:"var(--orange)"}}>{diproduksiHariIni} pcs</div>
+      </div>
+      <div className="stat-card">
+        <div className="stat-lbl">📦 Stok Total</div>
+        <div className="stat-val" style={{color:"var(--text)"}}>{stokTotal} pcs</div>
+      </div>
+    </div>
+
+    <div style={{fontWeight:800,fontSize:14,marginBottom:10,color:"var(--text2)"}}>⚡ Aksi Cepat</div>
+    <div className="grid2" style={{marginBottom:20}}>
+      <button className="btn-prime" onClick={()=>goTo("produksi")}>🍳 Catat Produksi</button>
+      <button className="btn-green" onClick={()=>goTo("kasir")}>🛒 Catat Penjualan</button>
+      <button className="btn-gold" onClick={()=>goTo("bahan")}>🧂 Beli Bahan</button>
+      <button className="btn-out" onClick={()=>goTo("laporan")}>📊 Lihat Laporan</button>
+    </div>
+
+    <div style={{fontWeight:800,fontSize:14,marginBottom:10,color:"var(--text2)"}}>📦 Ringkasan Produk</div>
+    {produkJadi.map(p=><div key={p.id} className="prod-card" style={{marginBottom:8}} onClick={()=>goTo("stok")}>
+      <div className="row-between">
+        <div className="row"><span style={{fontSize:20}}>{p.emoji}</span>
+          <div><div style={{fontWeight:700,fontSize:14}}>{p.nama}</div>
+            <div style={{fontSize:12,color:"var(--muted)"}}>Stok: <b style={{color:p.stok===0?"#F87171":p.stok<=5?"var(--gold)":"var(--green)"}}>{p.stok} pcs</b></div>
+          </div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:15,color:"var(--red)"}}>{fmt(p.hargaEcer)}</div>
+          <ExpBadge exp={p.exp}/>
+        </div>
+      </div>
+    </div>)}
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 2 — KASIR
+══════════════════════════════════════════════════════ */
+function Kasir({produkJadi,setProdukJadi,penjualan,setPenjualan,reseller,showToast,setKonfirm,namaUsaha}){
+  const[step,setStep]=useState(0); // 0=kasir, 2=struk
+  const[pembeli,setPembeli]=useState(null);
+  const[namaPembeliUmum,setNamaPembeliUmum]=useState("");
+  const[cart,setCart]=useState([]);
+  const[metodeBayar,setMetodeBayar]=useState("Tunai");
+  const[diskonTambahan,setDiskonTambahan]=useState(0);
+  const[trxDone,setTrxDone]=useState(null);
+  const[notesStruk,setNotesStruk]=useState("");
+  const[editNotes,setEditNotes]=useState(false);
+  const[notesDraft,setNotesDraft]=useState(""); // simpan sebelum edit
+  const[modalStikerProd,setModalStikerProd]=useState(null); // produk yg akan dicetak stiker
+
+  // Default disclaimer
+  const DEFAULT_NOTES="Simpan di kulkas maks. 5 hari atau freezer 1 bulan.\nPanaskan sebelum disajikan. Tidak mengandung pengawet.";
+  const[disclaimerTemplate,setDisclaimerTemplate]=useState(()=>{
+    try{return localStorage.getItem('jd2_disclaimer')||DEFAULT_NOTES;}catch{return DEFAULT_NOTES;}
+  });
+
+  const selectedReseller=reseller.find(r=>r.id===pembeli);
+  const isReseller=!!selectedReseller&&selectedReseller.tipe!=="Ecer";
+
+  const getHarga=(produk)=>{
+    if(!selectedReseller)return produk.hargaEcer;
+    if(selectedReseller.tipe==="Ecer")return produk.hargaEcer;
+    let h=produk.hargaReseller;
+    if(selectedReseller.diskon>0)h=Math.round(h*(1-selectedReseller.diskon/100));
+    return h;
+  };
+
+  const handlePembeliChange=(newPembeliId)=>{
+    setPembeli(newPembeliId||null);
+    const newReseller=reseller.find(r=>r.id===newPembeliId)||null;
+    const getHargaWith=(produk,rs)=>{
+      if(!rs||rs.tipe==="Ecer")return produk.hargaEcer;
+      let h=produk.hargaReseller||produk.hargaEcer;
+      if(rs.diskon>0)h=Math.round(h*(1-rs.diskon/100));
+      return h;
+    };
+    setCart(c=>c.map(item=>{const prod=produkJadi.find(p=>p.id===item.pid);if(!prod)return item;return{...item,harga:getHargaWith(prod,newReseller)};}));
+  };
+
+  const addToCart=(prod)=>{
+    if(prod.stok===0)return;
+    setCart(c=>{
+      const ex=c.find(i=>i.pid===prod.id);
+      if(ex)return c.map(i=>i.pid===prod.id?{...i,qty:Math.min(i.qty+1,prod.stok)}:i);
+      return[...c,{pid:prod.id,nama:prod.nama,emoji:prod.emoji,qty:1,harga:getHarga(prod),hpp:prod.hpp,exp:prod.exp}];
+    });
+  };
+  const removeFromCart=(pid)=>setCart(c=>c.filter(i=>i.pid!==pid));
+  const setQty=(pid,qty,maxStok)=>{
+    if(qty<1)return removeFromCart(pid);
+    setCart(c=>c.map(i=>i.pid===pid?{...i,qty:Math.min(qty,maxStok)}:i));
+  };
+
+  const subtotal=cart.reduce((s,i)=>s+i.harga*i.qty,0);
+  const total=Math.max(0,subtotal-diskonTambahan);
+
+  const namaPembeliFinal=selectedReseller?selectedReseller.nama:(namaPembeliUmum.trim()||"Umum / Ecer");
+
+  const proses=()=>{
+    if(cart.length===0){showToast("Pilih produk dulu","error");return;}
+    if(diskonTambahan>subtotal&&subtotal>0){showToast("Diskon melebihi subtotal","error");return;}
+    const doProses=()=>{
+      const trx={id:uid(),tgl:todayStr,pembeli:namaPembeliFinal,resellerId:pembeli,
+        items:cart,metodeBayar,diskon:diskonTambahan,subtotal,total,notes:notesStruk,
+        labaKotor:cart.reduce((s,i)=>s+(i.harga-i.hpp)*i.qty,0)};
+      setProdukJadi(prev=>prev.map(p=>{const item=cart.find(i=>i.pid===p.id);if(!item)return p;return{...p,stok:Math.max(0,p.stok-item.qty)};}));
+      setPenjualan(prev=>[trx,...prev]);
+      setTrxDone(trx);
+      setStep(2);
+      showToast("Transaksi berhasil dicatat ✅");
+    };
+    if(total>500000){
+      setKonfirm({judul:"Konfirmasi Transaksi",pesan:`Total transaksi ${fmt(total)}. Lanjutkan?`,labelYa:"Ya, Proses",warnaYa:"var(--green)",onYa:doProses});
+    }else{
+      doProses();
+    }
+  };
+
+  // Format teks WA yang lebih rapi
+  const kirimWA=()=>{
+    const sep="════════════════════════";
+    const sep2="────────────────────────";
+    const items=trxDone.items.map((i,idx)=>`${idx+1}. ${i.emoji} ${i.nama}\n   ${i.qty} pcs × ${fmt(i.harga)} = *${fmt(i.harga*i.qty)}*`).join("\n");
+    let pesan=`🍱 *NOTA ${namaUsaha.toUpperCase()}*\n${sep}\n`;
+    pesan+=`📋 No: *${trxDone.id.slice(-8).toUpperCase()}*\n`;
+    pesan+=`📅 Tgl: ${fmtTgl(trxDone.tgl)}\n`;
+    pesan+=`👤 Pembeli: ${trxDone.pembeli}\n`;
+    pesan+=`${sep2}\n`;
+    pesan+=`*DAFTAR PRODUK:*\n${items}\n`;
+    pesan+=`${sep2}\n`;
+    if(trxDone.diskon>0)pesan+=`💸 Diskon: -${fmt(trxDone.diskon)}\n`;
+    pesan+=`💳 Bayar: ${trxDone.metodeBayar}\n`;
+    pesan+=`${sep}\n`;
+    pesan+=`💰 *TOTAL: ${fmt(trxDone.total)}*\n`;
+    pesan+=`${sep}\n`;
+    pesan+=`🙏 Terima kasih telah berbelanja!\n`;
+    if(trxDone.notes&&trxDone.notes.trim()){
+      pesan+=`\n📌 *Catatan:*\n${trxDone.notes}`;
+    }
+    pesan+=`\n\n_${namaUsaha}_`;
+    const hp=selectedReseller?.hp?selectedReseller.hp.replace(/^0/,'62').replace(/^\+/,''):"";
+    window.open(`https://wa.me/${hp}?text=${encodeURIComponent(pesan)}`,"_blank");
+  };
+
+  // Thermal print struk
+  const printThermal=()=>{
+    const area=document.getElementById('thermal-print-area');
+    if(!area)return;
+    const sep='─'.repeat(32);
+    const centerPad=(s,w=32)=>{const pad=Math.max(0,Math.floor((w-s.length)/2));return ' '.repeat(pad)+s;};
+    const rowFmt=(l,r,w=32)=>{const space=Math.max(1,w-l.length-r.length);return l+' '.repeat(space)+r;};
+    let html=`<div class="t-center t-bold t-lg">${namaUsaha}</div>`;
+    html+=`<div class="t-center t-sm">Dapur Produksi & Penjualan</div>`;
+    html+=`<hr class="t-sep"/>`;
+    html+=`<div class="t-sm">No: ${trxDone.id.slice(-8).toUpperCase()}</div>`;
+    html+=`<div class="t-sm">Tgl: ${fmtTgl(trxDone.tgl)}</div>`;
+    html+=`<div class="t-sm">Pembeli: ${trxDone.pembeli}</div>`;
+    html+=`<div class="t-sm">Bayar: ${trxDone.metodeBayar}</div>`;
+    html+=`<hr class="t-sep"/>`;
+    trxDone.items.forEach(i=>{
+      html+=`<div class="t-bold t-sm">${i.nama}</div>`;
+      html+=`<div class="t-row t-sm"><span>${i.qty} pcs x ${fmt(i.harga)}</span><span>${fmt(i.harga*i.qty)}</span></div>`;
+    });
+    html+=`<hr class="t-sep"/>`;
+    if(trxDone.diskon>0)html+=`<div class="t-row t-sm"><span>Diskon</span><span>-${fmt(trxDone.diskon)}</span></div>`;
+    html+=`<div class="t-row t-bold"><span>TOTAL</span><span>${fmt(trxDone.total)}</span></div>`;
+    html+=`<hr class="t-sep"/>`;
+    if(trxDone.notes&&trxDone.notes.trim()){
+      html+=`<div class="t-sm t-bold">Catatan:</div>`;
+      trxDone.notes.split('\n').forEach(l=>{html+=`<div class="t-sm">${l}</div>`;});
+      html+=`<hr class="t-sep"/>`;
+    }
+    html+=`<div class="t-center t-sm">Terima kasih! 🙏</div>`;
+    html+=`<div class="t-center t-sm">${namaUsaha}</div>`;
+    area.innerHTML=html;
+    window.print();
+  };
+
+  // Thermal print stiker produk
+  const printStiker=(items)=>{
+    const area=document.getElementById('thermal-stiker-area');
+    if(!area)return;
+    let html='';
+    items.forEach(item=>{
+      const prod=produkJadi.find(p=>p.id===item.pid);
+      // Cari batch terbaru untuk tglProd & tglExp
+      const tglProd=item.tglProd||todayStr;
+      const tglExp=item.tglExp||(prod?.exp)||"";
+      for(let n=0;n<item.qty;n++){
+        html+=`<div style="border:1px solid #000;padding:2mm;margin-bottom:2mm;page-break-inside:avoid">`;
+        html+=`<div style="font-weight:bold;font-size:10pt;text-align:center">${namaUsaha}</div>`;
+        html+=`<div style="font-weight:bold;font-size:9pt">${item.emoji} ${item.nama}</div>`;
+        html+=`<div style="font-size:7.5pt">Diproduksi : ${fmtTgl(tglProd)}</div>`;
+        if(tglExp)html+=`<div style="font-size:7.5pt;font-weight:bold">Kadaluarsa : ${fmtTgl(tglExp)}</div>`;
+        html+=`<div style="font-size:7pt;color:#333">Tanpa pengawet. Simpan di kulkas ≤5 hari.</div>`;
+        html+=`</div>`;
+      }
+    });
+    area.innerHTML=html;
+    window.print();
+  };
+
+  const reset=()=>{setStep(0);setPembeli(null);setNamaPembeliUmum("");setCart([]);setMetodeBayar("Tunai");setDiskonTambahan(0);setTrxDone(null);setNotesStruk("");};
+
+  // ── HALAMAN STRUK ──
+  if(step===2&&trxDone)return<div className="page-pad">
+    {/* Hidden thermal areas */}
+    <div id="thermal-print-area"/>
+    <div id="thermal-stiker-area"/>
+
+    <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22,marginBottom:16}}>✅ Transaksi Selesai</div>
+
+    {/* Struk visual lebih rapi */}
+    <div className="struk" style={{marginBottom:16}}>
+      <div style={{textAlign:"center",marginBottom:12}}>
+        <div style={{fontWeight:800,fontSize:20,letterSpacing:1}}>{namaUsaha}</div>
+        <div style={{fontSize:11,color:"var(--muted)",letterSpacing:.5}}>— Dapur Produksi & Penjualan —</div>
+        <div style={{marginTop:6,fontSize:12,color:"var(--muted)"}}>
+          No. <b>{trxDone.id.slice(-8).toUpperCase()}</b>
+        </div>
+        <div style={{fontSize:12,color:"var(--muted)"}}>{fmtTgl(trxDone.tgl)}</div>
+        <div style={{fontSize:13,fontWeight:700,marginTop:4}}>👤 {trxDone.pembeli}</div>
+      </div>
+      <hr className="struk-sep"/>
+      {trxDone.items.map((i,idx)=><div key={i.pid} style={{marginBottom:8}}>
+        <div style={{display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:16}}>{i.emoji}</span>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:700,fontSize:14}}>{i.nama}</div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"var(--muted)"}}>
+              <span>{i.qty} pcs × {fmt(i.harga)}</span>
+              <span style={{fontWeight:700,color:"var(--text)"}}>{fmt(i.harga*i.qty)}</span>
+            </div>
+          </div>
+        </div>
+      </div>)}
+      <hr className="struk-sep"/>
+      <div style={{fontSize:13,marginBottom:4,display:"flex",justifyContent:"space-between"}}>
+        <span>Subtotal</span><span>{fmt(trxDone.subtotal)}</span>
+      </div>
+      {trxDone.diskon>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:4,color:"var(--green)"}}>
+        <span>Diskon</span><span>-{fmt(trxDone.diskon)}</span>
+      </div>}
+      <div style={{display:"flex",justifyContent:"space-between",fontWeight:800,fontSize:18,marginTop:6,paddingTop:6,borderTop:"2px solid var(--border)"}}>
+        <span>TOTAL</span><span style={{color:"var(--red)"}}>{fmt(trxDone.total)}</span>
+      </div>
+      <div style={{fontSize:12,color:"var(--muted)",marginTop:4}}>💳 {trxDone.metodeBayar}</div>
+      <hr className="struk-sep"/>
+
+      {/* Notes / Disclaimer di struk */}
+      {editNotes
+        ?<div style={{marginBottom:8}}>
+          <div style={{fontSize:12,fontWeight:700,color:"var(--muted)",marginBottom:4}}>📌 Catatan / Disclaimer</div>
+          <textarea className="inp" rows={4} value={notesStruk} onChange={e=>setNotesStruk(e.target.value)}
+            placeholder="Cara penyimpanan, disclaimer, dll..." style={{resize:"vertical",fontSize:13,minHeight:80}}/>
+          <div style={{display:"flex",gap:8,marginTop:6}}>
+            <button className="btn-prime" style={{flex:1,fontSize:13,padding:"8px 12px"}} onClick={()=>{
+              try{localStorage.setItem('jd2_disclaimer',notesStruk);}catch{}
+              setEditNotes(false);showToast("Catatan disimpan ✅");
+            }}>Simpan & Gunakan</button>
+            <button className="btn-out" style={{fontSize:13,padding:"8px 12px"}} onClick={()=>{setNotesStruk(notesDraft);setEditNotes(false);}}>Batal</button>
+          </div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>💡 Catatan ini akan ditampilkan di struk WA & print.</div>
+        </div>
+        :<>
+          {notesStruk?<div style={{marginBottom:8}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--muted)",marginBottom:3}}>📌 CATATAN:</div>
+            {notesStruk.split('\n').map((l,i)=><div key={i} style={{fontSize:12,color:"var(--text2)"}}>{l}</div>)}
+          </div>:<div style={{textAlign:"center",fontSize:12,color:"var(--muted2)",marginBottom:4,fontStyle:"italic"}}>
+            Belum ada catatan / disclaimer
+          </div>}
+          <button onClick={()=>{if(!notesStruk&&disclaimerTemplate)setNotesStruk(disclaimerTemplate);setNotesDraft(notesStruk);setEditNotes(true);}}
+            style={{background:"none",border:"1px dashed var(--border)",borderRadius:8,padding:"6px 14px",fontSize:12,color:"var(--muted)",cursor:"pointer",width:"100%",marginBottom:4}}>
+            ✏️ {notesStruk?"Edit":"Tambah"} Catatan / Disclaimer
+          </button>
+        </>
+      }
+      <hr className="struk-sep"/>
+      <div style={{textAlign:"center",fontSize:12,color:"var(--muted)"}}>🙏 Terima kasih telah berbelanja!</div>
+    </div>
+
+    {/* Tombol-tombol aksi */}
+    <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
+      <button className="wa-btn" onClick={kirimWA} style={{fontSize:14}}>📱 Kirim Nota via WA</button>
+      <div className="grid2">
+        <button className="btn-out" onClick={printThermal} style={{fontSize:13}}>🖨️ Print Struk Thermal</button>
+        <button className="btn-gold" onClick={()=>{
+          // Seed tglProd & tglExp dari data produkJadi
+          const itemsWithDates=trxDone.items.map(item=>{
+            const prod=produkJadi.find(p=>p.id===item.pid);
+            return{...item,tglProd:todayStr,tglExp:prod?.exp||""};
+          });
+          setModalStikerProd(itemsWithDates);
+        }} style={{fontSize:13}}>🏷️ Print Stiker Produk</button>
+      </div>
+      <button className="btn-prime" onClick={reset}>🛒 Transaksi Baru</button>
+    </div>
+
+    {/* Modal Print Stiker */}
+    {modalStikerProd&&<Modal title="🏷️ Cetak Stiker Produk" onClose={()=>setModalStikerProd(null)}>
+      <div style={{fontSize:13,color:"var(--muted)",marginBottom:12}}>Stiker berisi nama produk, tgl produksi & kadaluarsa. Sesuaikan jika perlu.</div>
+      {modalStikerProd.map((item,idx)=>{
+        const prod=produkJadi.find(p=>p.id===item.pid);
+        return<div key={item.pid} style={{padding:"12px 0",borderBottom:"1px solid var(--border2)"}}>
+          <div className="row-between" style={{marginBottom:8}}>
+            <div style={{fontWeight:700,fontSize:14}}>{item.emoji} {item.nama}</div>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:12,color:"var(--muted)"}}>Jml stiker:</span>
+              <div className="qty-ctrl">
+                <button className="qty-btn" onClick={()=>setModalStikerProd(p=>p.map((x,i)=>i===idx?{...x,qty:Math.max(1,x.qty-1)}:x))}>−</button>
+                <span className="qty-val">{item.qty}</span>
+                <button className="qty-btn" onClick={()=>setModalStikerProd(p=>p.map((x,i)=>i===idx?{...x,qty:x.qty+1}:x))}>+</button>
+              </div>
+            </div>
+          </div>
+          <div className="grid2">
+            <div className="frow" style={{marginBottom:0}}>
+              <label className="lbl" style={{fontSize:10}}>Tgl Produksi</label>
+              <input className="inp" type="date" style={{fontSize:13,padding:"8px 10px"}}
+                value={item.tglProd||todayStr}
+                onChange={e=>setModalStikerProd(p=>p.map((x,i)=>i===idx?{...x,tglProd:e.target.value}:x))}/>
+            </div>
+            <div className="frow" style={{marginBottom:0}}>
+              <label className="lbl" style={{fontSize:10}}>Tgl Kadaluarsa</label>
+              <input className="inp" type="date" style={{fontSize:13,padding:"8px 10px"}}
+                value={item.tglExp||(prod?.exp)||""}
+                onChange={e=>setModalStikerProd(p=>p.map((x,i)=>i===idx?{...x,tglExp:e.target.value}:x))}/>
+            </div>
+          </div>
+        </div>;
+      })}
+      <div id="thermal-stiker-area"/>
+      <button className="btn-gold" onClick={()=>printStiker(modalStikerProd)} style={{width:"100%",marginTop:14}}>🖨️ Cetak Stiker Sekarang</button>
+    </Modal>}
+  </div>;
+
+  // ── HALAMAN KASIR ──
+  return<div className="page-pad">
+    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22}}>Kasir Penjualan</div>
+      <span title="Keterangan badge expired" style={{fontSize:11,color:"var(--muted)",cursor:"default",background:"var(--bg2)",borderRadius:8,padding:"4px 8px",border:"1px solid var(--border)"}}>
+        <span style={{background:"rgba(74,222,128,.12)",color:"#2E7D32",borderRadius:10,padding:"2px 6px",fontSize:11,fontWeight:700}}>✅ Aman</span>
+        {" "}= expired &gt;21 hari
+      </span>
+    </div>
+
+    {/* Pilih Pembeli */}
+    <div className="frow" style={{marginBottom:4}}>
+      <label className="lbl">Pembeli</label>
+      <select className="sel" value={pembeli||""} onChange={e=>handlePembeliChange(e.target.value||null)}>
+        <option value="">Umum / Ecer (nama opsional)</option>
+        {reseller.map(r=><option key={r.id} value={r.id}>{r.nama} ({r.tipe}{r.diskon>0?`, disc ${r.diskon}%`:""})</option>)}
+      </select>
+    </div>
+    {/* Input nama pembeli umum jika tidak ada di daftar reseller */}
+    {!pembeli&&<div className="frow" style={{marginBottom:14}}>
+      <input className="inp" value={namaPembeliUmum} maxLength={80} onChange={e=>setNamaPembeliUmum(e.target.value)}
+        placeholder="Nama pembeli (opsional, misal: Pak Budi)" style={{fontSize:13}}/>
+    </div>}
+
+    {/* Info reseller terpilih */}
+    {selectedReseller&&<div style={{background:"rgba(245,158,11,.08)",border:"1px solid rgba(245,158,11,.25)",borderRadius:10,padding:"8px 12px",marginBottom:12,fontSize:12}}>
+      <span style={{fontWeight:700}}>👤 {selectedReseller.nama}</span>
+      <span style={{color:"var(--muted)",marginLeft:8}}>{selectedReseller.tipe}{selectedReseller.diskon>0?` · Disc ${selectedReseller.diskon}%`:""} · {selectedReseller.kota}</span>
+    </div>}
+
+    {/* Grid Produk */}
+    <div style={{fontWeight:700,fontSize:14,marginBottom:8,color:"var(--text2)"}}>Pilih Produk</div>
+    {produkJadi.map(p=>{
+      const harga=getHarga(p);
+      const inCart=cart.find(i=>i.pid===p.id);
+      const isHabis=p.stok===0;
+      return<div key={p.id} className={`kasir-item${inCart?" selected":""}${isHabis?" disabled":""}`} style={{marginBottom:8}} onClick={()=>!isHabis&&addToCart(p)}>
+        <div className="row-between">
+          <div className="row"><span style={{fontSize:22}}>{p.emoji}</span>
+            <div>
+              <div style={{fontWeight:700,fontSize:14}}>{p.nama}</div>
+              <div style={{fontSize:12,color:"var(--muted)"}}>
+                Stok: {p.stok} pcs · <span style={{color:"var(--red)",fontWeight:700}}>{fmt(harga)}</span>
+                {isReseller&&p.hargaReseller<p.hargaEcer&&<span style={{color:"var(--gold)",fontSize:11}}> (reseller)</span>}
+              </div>
+              {p.hpp>0&&<div style={{fontSize:11,color:"var(--muted)"}}>HPP {fmt(p.hpp)} · laba {fmt(harga-p.hpp)}/pcs</div>}
+            </div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <StokBadge stok={p.stok} stokMin={5}/>
+            <ExpBadge exp={p.exp}/>
+            {inCart&&<div className="qty-ctrl" onClick={e=>e.stopPropagation()}>
+              <button className="qty-btn" onClick={()=>setQty(p.id,inCart.qty-1,p.stok)}>−</button>
+              <span className="qty-val">{inCart.qty}</span>
+              <button className="qty-btn" onClick={()=>setQty(p.id,inCart.qty+1,p.stok)}>+</button>
+            </div>}
+            {!inCart&&!isHabis&&<div style={{background:"var(--red)",color:"#fff",borderRadius:8,padding:"6px 12px",fontWeight:700,fontSize:13}}>+ Tambah</div>}
+            {isHabis&&<span className="badge" style={{background:"rgba(248,113,113,.15)",color:"#F87171"}}>Habis</span>}
+          </div>
+        </div>
+      </div>;
+    })}
+
+    {/* Ringkasan Keranjang */}
+    {cart.length>0&&<div style={{marginTop:16}}>
+      <div style={{fontWeight:800,fontSize:14,marginBottom:10}}>🛒 Keranjang ({cart.reduce((s,i)=>s+i.qty,0)} item)</div>
+      <div className="box-hl" style={{marginBottom:12}}>
+        {cart.map(i=><div key={i.pid} className="summary-row">
+          <span>{i.emoji} {i.nama} ×{i.qty}</span>
+          <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,color:"var(--red)"}}>{fmt(i.harga*i.qty)}</span>
+        </div>)}
+        <div className="divider"/>
+        <div className="summary-row" style={{color:"var(--muted)",fontSize:13}}>
+          <span>Subtotal</span>
+          <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:600}}>{fmt(subtotal)}</span>
+        </div>
+        <div className="frow" style={{marginBottom:10}}>
+          <label className="lbl">Metode Bayar</label>
+          <select className="sel" value={metodeBayar} onChange={e=>setMetodeBayar(e.target.value)}>
+            {["Tunai","Transfer","QRIS","COD","Piutang"].map(m=><option key={m}>{m}</option>)}
+          </select>
+        </div>
+        <div className="frow" style={{marginBottom:10}}>
+          <label className="lbl">Diskon Tambahan (Rp)</label>
+          <input className={`inp${diskonTambahan<0||(diskonTambahan>subtotal&&subtotal>0)?" error":""}`} type="number" min="0" value={diskonTambahan} onChange={e=>{const v=+e.target.value||0;setDiskonTambahan(v<0?0:v);}} placeholder="0"/>
+          {diskonTambahan<0&&<div style={{fontSize:12,color:"#F87171",marginTop:2}}>⚠️ Diskon tidak boleh negatif</div>}
+          {diskonTambahan>subtotal&&subtotal>0&&<div style={{fontSize:12,color:"#F87171",marginTop:2}}>⚠️ Diskon tidak boleh melebihi subtotal ({fmt(subtotal)})</div>}
+        </div>
+        {/* Pre-set catatan/disclaimer */}
+        <div className="frow" style={{marginBottom:10}}>
+          <label className="lbl">Catatan / Disclaimer di Nota</label>
+          <textarea className="inp" rows={3} value={notesStruk} onChange={e=>setNotesStruk(e.target.value)}
+            placeholder="Cara penyimpanan, info halal, dll..." style={{resize:"vertical",fontSize:13,minHeight:68}}/>
+          {!notesStruk&&disclaimerTemplate&&<button onClick={()=>setNotesStruk(disclaimerTemplate)}
+            style={{background:"none",border:"none",color:"var(--red)",fontSize:12,cursor:"pointer",textAlign:"left",padding:"2px 0",fontWeight:600}}>
+            ↩ Gunakan template disclaimer
+          </button>}
+        </div>
+        <div className="summary-row total">
+          <span>TOTAL</span>
+          <span style={{color:"var(--red)",fontFamily:"'Space Grotesk',sans-serif"}}>{fmt(total)}</span>
+        </div>
+      </div>
+      <button className="btn-prime" onClick={proses} style={{width:"100%",marginBottom:8}}>✅ Proses Transaksi</button>
+    </div>}
+    {cart.length===0&&<div className="empty-state" style={{paddingBottom:80}}><div className="icon">🛒</div><div>Pilih produk di atas untuk mulai</div></div>}
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 3 — PRODUKSI
+══════════════════════════════════════════════════════ */
+function Produksi({resep,bahanBaku,setBahanBaku,produkJadi,setProdukJadi,batchProduksi,setBatchProduksi,showToast,setKonfirm}){
+  const[step,setStep]=useState(0);
+  const[selectedResep,setSelectedResep]=useState(null);
+  const[showAllBatch,setShowAllBatch]=useState(false);
+  const[form,setForm]=useState({jumlahBatch:1,pcsJadi:"",pcsGagal:0,biayaTenaga:"",biayaLain:"",catatan:"",tglProd:todayStr,tglExp:""});
+
+  const hitungBiayaBahan=(r,jb)=>r.bahan.reduce((t,item)=>{const b=bahanBaku.find(x=>x.id===item.bid);return t+(b?.hargaBeli||0)*item.qty*jb;},0);
+  const cekBahan=(r,jb)=>r.bahan.map(item=>{const b=bahanBaku.find(x=>x.id===item.bid);const butuh=item.qty*jb;return{nama:b?.nama||item.bid,satuan:item.satuan,butuh,tersedia:b?.stok||0,cukup:(b?.stok||0)>=butuh};});
+
+  // Hitung exp default berdasar produk yg terhubung ke resep
+  const getDefaultExp=(r,tglProd)=>{
+    const prod=produkJadi.find(p=>p.resepId===r.id);
+    if(prod?.exp){
+      const masaSimpan=diffDays(prod.exp,todayStr);
+      if(masaSimpan>0)return dFrom(tglProd,masaSimpan);
+    }
+    return dFrom(tglProd,180); // default 180 hari jika masa simpan <= 0
+  };
+
+  const pilihResep=(r)=>{
+    setSelectedResep(r);
+    const tglProd=todayStr;
+    setForm({jumlahBatch:1,pcsJadi:r.hasilPcs,pcsGagal:0,biayaTenaga:r.biayaTenaga,biayaLain:r.biayaLain,catatan:"",tglProd,tglExp:getDefaultExp(r,tglProd)});
+    setStep(1);
+  };
+
+  const jb=+form.jumlahBatch||1;
+  const biayaBahan=selectedResep?hitungBiayaBahan(selectedResep,jb):0;
+  const biayaTenaga=+form.biayaTenaga||0;
+  const biayaLain=+form.biayaLain||0;
+  const totalBiaya=biayaBahan+biayaTenaga+biayaLain;
+  const pcsJadi=+form.pcsJadi||0;
+  const hppBatch=pcsJadi>0?totalBiaya/pcsJadi:0;
+  const cek=selectedResep?cekBahan(selectedResep,jb):[];
+  const adaKurang=cek.some(c=>!c.cukup);
+  const masaSimpanHari=form.tglProd&&form.tglExp?diffDays(form.tglExp,form.tglProd):0;
+
+  const simpan=()=>{
+    if(!selectedResep){showToast("Pilih resep terlebih dahulu","error");return;}
+    if(pcsJadi<=0){showToast("Isi jumlah pcs jadi","error");return;}
+    if(!form.tglProd){showToast("Isi tanggal produksi","error");return;}
+    const doSimpan=()=>{
+      const batch={id:uid(),tgl:form.tglProd,resepId:selectedResep.id,jumlahBatch:jb,pcsJadi,pcsGagal:+form.pcsGagal||0,
+        biayaBahan,biayaTenaga,biayaLain,totalBiaya,hppPerPcs:Math.round(hppBatch),catatan:form.catatan,
+        tglProd:form.tglProd,tglExp:form.tglExp};
+      setBahanBaku(prev=>prev.map(b=>{const p=selectedResep.bahan.find(r=>r.bid===b.id);if(!p)return b;return{...b,stok:Math.max(0,b.stok-p.qty*jb)};}));
+      setProdukJadi(prev=>prev.map(p=>{
+        if(p.resepId!==selectedResep.id)return p;
+        const hppBaru=p.stok>0?(p.stok*p.hpp+pcsJadi*hppBatch)/(p.stok+pcsJadi):hppBatch;
+        return{...p,stok:p.stok+pcsJadi,hpp:Math.round(hppBaru),exp:form.tglExp||p.exp};
+      }));
+      setBatchProduksi(prev=>[batch,...prev]);
+      showToast(`Produksi ${pcsJadi} pcs ${selectedResep.namaProduk} berhasil 🍳`);
+      setStep(0);setSelectedResep(null);
+      setForm({jumlahBatch:1,pcsJadi:"",pcsGagal:0,biayaTenaga:"",biayaLain:"",catatan:"",tglProd:todayStr,tglExp:""});
+    };
+    if(adaKurang){
+      setKonfirm({judul:"Bahan Tidak Cukup",pesan:"Beberapa bahan stoknya kurang dari kebutuhan produksi. Stok akan tercatat minus (0). Lanjutkan produksi?",labelYa:"Ya, Lanjutkan",warnaYa:"var(--orange)",onYa:doSimpan});
+    }else{
+      doSimpan();
+    }
+  };
+
+  const produk=selectedResep?produkJadi.find(p=>p.resepId===selectedResep.id):null;
+  const marginEcer=produk&&hppBatch>0?((produk.hargaEcer-hppBatch)/produk.hargaEcer*100):0;
+
+  return<div className="page-pad">
+    <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22,marginBottom:4}}>🍳 Catat Produksi</div>
+    {step===0&&<>
+      <div style={{fontSize:13,color:"var(--muted)",marginBottom:16}}>Pilih resep yang akan diproduksi hari ini</div>
+      {resep.map(r=>{
+        const biayaEst=hitungBiayaBahan(r,1);
+        const cekBhn=cekBahan(r,1);
+        const kurang=cekBhn.filter(c=>!c.cukup);
+        return<div key={r.id} className="resep-card" style={{marginBottom:12}} onClick={()=>pilihResep(r)}>
+          <div className="row-between" style={{marginBottom:8}}>
+            <div className="row"><span style={{fontSize:24}}>{r.emoji}</span>
+              <div><div style={{fontWeight:800,fontSize:16}}>{r.namaProduk}</div>
+                <div style={{fontSize:12,color:"var(--muted)"}}>{r.hasilPcs} pcs/batch · {r.beratPcs}gr</div>
+              </div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:13,color:"var(--orange)",fontWeight:700}}>{fmt(biayaEst)}</div>
+              <div style={{fontSize:11,color:"var(--muted)"}}>est. biaya bahan</div>
+            </div>
+          </div>
+          {kurang.length>0
+            ?<div style={{fontSize:12,color:"#F87171",fontWeight:600}}>⚠️ Bahan kurang: {kurang.map(c=>`${c.nama} (butuh ${c.butuh} ${c.satuan}, ada ${c.tersedia})`).join(", ")}</div>
+            :<div style={{fontSize:12,color:"var(--green)",fontWeight:600}}>✅ Semua bahan tersedia</div>}
+        </div>;
+      })}
+      {batchProduksi.length>0&&<>
+        <div className="row-between" style={{marginTop:20,marginBottom:10}}>
+          <div style={{fontWeight:800,fontSize:14}}>📋 Riwayat Batch</div>
+          {batchProduksi.length>5&&<button onClick={()=>setShowAllBatch(s=>!s)} style={{background:"none",border:"none",color:"var(--red)",fontSize:13,fontWeight:700,cursor:"pointer",padding:"4px 0"}}>
+            {showAllBatch?"Tampilkan Lebih Sedikit ▲":"Lihat Semua ▼ ("+batchProduksi.length+")"}
+          </button>}
+        </div>
+        {(showAllBatch?batchProduksi:batchProduksi.slice(0,5)).map(b=>{
+          const r=resep.find(x=>x.id===b.resepId);
+          return<div key={b.id} className="trx-item">
+            <div className="row-between">
+              <div><div style={{fontWeight:700,fontSize:14}}>{r?.emoji} {r?.namaProduk||b.resepId}</div>
+                <div style={{fontSize:12,color:"var(--muted)"}}>
+                  🍳 Produksi: {fmtTgl(b.tglProd||b.tgl)} · {b.pcsJadi} pcs
+                </div>
+                {b.tglExp&&<div style={{fontSize:12,color:"var(--orange)",fontWeight:600}}>
+                  ⏳ Exp: {fmtTgl(b.tglExp)}
+                </div>}
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div style={{color:"var(--orange)",fontWeight:700,fontFamily:"'Space Grotesk',sans-serif"}}>{fmt(b.totalBiaya)}</div>
+                <div style={{fontSize:11,color:"var(--muted)"}}>HPP {fmt(b.hppPerPcs)}/pcs</div>
+              </div>
+            </div>
+          </div>;
+        })}
+      </>}
+    </>}
+
+    {step===1&&selectedResep&&<>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
+        <button className="btn-out" onClick={()=>{setStep(0);setSelectedResep(null);}}>← Kembali</button>
+        <div style={{fontWeight:800,fontSize:16}}>{selectedResep.emoji} {selectedResep.namaProduk}</div>
+      </div>
+
+      {/* Cek ketersediaan bahan */}
+      <div style={{fontWeight:700,fontSize:13,marginBottom:8,color:"var(--text2)"}}>🧂 Ketersediaan Bahan</div>
+      <div className="card" style={{padding:"8px 14px",marginBottom:14}}>
+        {cek.map((c,i)=><div key={i} className="bahan-row">
+          <span style={{fontSize:13}}>{c.nama}</span>
+          <span>{c.cukup?<span className="cek-ok">✅ {c.butuh} {c.satuan}</span>:<span className="cek-fail">⚠️ butuh {c.butuh} ada {c.tersedia} {c.satuan}</span>}</span>
+        </div>)}
+      </div>
+
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Jumlah Batch</label>
+          <input className="inp" type="number" min="1" value={form.jumlahBatch} onChange={e=>setForm(f=>({...f,jumlahBatch:+e.target.value||1,pcsJadi:selectedResep.hasilPcs*(+e.target.value||1)}))}/>
+        </div>
+        <div className="frow"><label className="lbl">Pcs Jadi Aktual</label>
+          <input className="inp" type="number" min="0" value={form.pcsJadi} onChange={e=>setForm(f=>({...f,pcsJadi:e.target.value}))}/>
+        </div>
+      </div>
+
+      {/* Tanggal Produksi & Kadaluarsa */}
+      <div style={{background:"rgba(46,125,50,.06)",border:"1px solid rgba(46,125,50,.18)",borderRadius:12,padding:"12px 14px",marginBottom:14}}>
+        <div style={{fontWeight:700,fontSize:13,color:"var(--green)",marginBottom:10}}>📅 Tanggal Produksi & Kadaluarsa</div>
+        <div className="grid2">
+          <div className="frow" style={{marginBottom:0}}>
+            <label className="lbl">Tgl Produksi *</label>
+            <input className="inp" type="date" value={form.tglProd}
+              onChange={e=>{
+                const tglProd=e.target.value;
+                // Jika exp sudah diisi, geser exp sesuai selisih hari yg sama
+                const selisih=masaSimpanHari>0?masaSimpanHari:180;
+                setForm(f=>({...f,tglProd,tglExp:dFrom(tglProd,selisih)}));
+              }}/>
+          </div>
+          <div className="frow" style={{marginBottom:0}}>
+            <label className="lbl">Tgl Kadaluarsa *</label>
+            <input className="inp" type="date" value={form.tglExp}
+              onChange={e=>setForm(f=>({...f,tglExp:e.target.value}))}/>
+          </div>
+        </div>
+        {masaSimpanHari>0&&<div style={{fontSize:12,color:"var(--green)",marginTop:8,fontWeight:600}}>
+          ✅ Masa simpan: <b>{masaSimpanHari} hari</b> ({fmtTgl(form.tglProd)} → {fmtTgl(form.tglExp)})
+        </div>}
+        {masaSimpanHari<=0&&form.tglExp&&<div style={{fontSize:12,color:"#F87171",marginTop:8,fontWeight:600}}>
+          ⚠️ Tanggal kadaluarsa harus setelah tanggal produksi
+        </div>}
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:6}}>
+          💡 Tanggal exp akan otomatis diupdate di data produk setelah simpan.
+        </div>
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Biaya Tenaga (Rp)</label>
+          <input className="inp" type="number" value={form.biayaTenaga} onChange={e=>setForm(f=>({...f,biayaTenaga:e.target.value}))}/>
+        </div>
+        <div className="frow"><label className="lbl">Biaya Lain (Rp)</label>
+          <input className="inp" type="number" value={form.biayaLain} onChange={e=>setForm(f=>({...f,biayaLain:e.target.value}))}/>
+        </div>
+      </div>
+      <div className="frow"><label className="lbl">Catatan (opsional)</label>
+        <input className="inp" value={form.catatan} onChange={e=>setForm(f=>({...f,catatan:e.target.value}))} placeholder="Contoh: Bumbu double"/>
+      </div>
+
+      {/* Preview HPP */}
+      <div className="hpp-preview">
+        <div style={{fontWeight:800,fontSize:13,marginBottom:10,color:"var(--orange)"}}>📊 Preview Biaya & HPP</div>
+        <div className="summary-row"><span>Biaya bahan</span><span style={{color:"var(--orange)",fontWeight:700}}>{fmt(biayaBahan)}</span></div>
+        <div className="summary-row"><span>Biaya tenaga + lain</span><span>{fmt(biayaTenaga+biayaLain)}</span></div>
+        <div style={{borderTop:"2px solid rgba(230,81,0,.2)",margin:"8px 0"}}/>
+        <div className="summary-row"><span style={{fontWeight:800}}>Total biaya</span><span style={{fontWeight:800,color:"var(--orange)"}}>{fmt(totalBiaya)}</span></div>
+        <div className="summary-row"><span style={{fontWeight:800}}>HPP per kemasan</span><span style={{fontWeight:800,fontFamily:"'Space Grotesk',sans-serif",color:"var(--orange)"}}>{fmt(hppBatch)}</span></div>
+        {produk&&<div className="summary-row"><span>Margin ecer</span>
+          <span className={marginEcer<15?"margin-warn":"margin-ok"} style={{fontWeight:700}}>
+            {Math.round(marginEcer)}% {marginEcer<15?"⚠️":"✅"}
+          </span>
+        </div>}
+      </div>
+
+      {adaKurang&&<div className="alert-banner orange" style={{marginTop:12}}>
+        <span>⚠️</span><span>Beberapa bahan tidak cukup. Produksi tetap bisa disimpan.</span>
+      </div>}
+
+      <button className="btn-prime" onClick={simpan} style={{width:"100%",marginTop:16}}>✅ Simpan Produksi</button>
+    </>}
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 4 — STOK & PRODUK JADI
+══════════════════════════════════════════════════════ */
+function StokProduk({produkJadi,setProdukJadi,batchProduksi,resep,showToast,setKonfirm}){
+  const[modalEdit,setModalEdit]=useState(null);
+  const[modalTambah,setModalTambah]=useState(false);
+  const[detail,setDetail]=useState(null);
+  const[form,setForm]=useState({});
+  const[formBaru,setFormBaru]=useState({nama:"",emoji:"🍱",resepId:"",hargaEcer:"",hargaReseller:"",stok:"",exp:dFrom(todayStr,180)});
+  const[errors,setErrors]=useState({});
+
+  const bukaModa=(p)=>{setModalEdit(p);setForm({hargaEcer:p.hargaEcer,hargaReseller:p.hargaReseller,exp:p.exp||""});setErrors({});};
+  const simpanEdit=()=>{
+    const e={};
+    if(!form.hargaEcer||+form.hargaEcer<=0)e.hargaEcer="Harga jual harus diisi";
+    if(+form.hargaReseller>+form.hargaEcer)e.hargaReseller="Harga reseller ≤ harga ecer";
+    setErrors(e);if(Object.keys(e).length)return;
+    setProdukJadi(prev=>prev.map(p=>p.id===modalEdit.id?{...p,hargaEcer:+form.hargaEcer,hargaReseller:+form.hargaReseller,exp:form.exp}:p));
+    showToast("Harga diperbarui ✅");setModalEdit(null);
+  };
+  const tambahProduk=()=>{
+    const e={};
+    if(!formBaru.nama.trim())e.nama="Nama wajib diisi";
+    if(!formBaru.hargaEcer||+formBaru.hargaEcer<=0)e.hargaEcer="Harga jual wajib diisi";
+    setErrors(e);if(Object.keys(e).length)return;
+    setProdukJadi(prev=>[...prev,{id:uid(),resepId:formBaru.resepId||"",nama:formBaru.nama,emoji:formBaru.emoji||"🍱",stok:+formBaru.stok||0,hpp:0,hargaEcer:+formBaru.hargaEcer,hargaReseller:+formBaru.hargaReseller||0,exp:formBaru.exp}]);
+    showToast("Produk baru ditambah ✅");setModalTambah(false);setFormBaru({nama:"",emoji:"🍱",resepId:"",hargaEcer:"",hargaReseller:"",stok:"",exp:dFrom(todayStr,180)});
+  };
+  const hapus=(p)=>setKonfirm({judul:"Hapus Produk?",pesan:`Hapus "${p.nama}" dari daftar produk?`,onYa:()=>{setProdukJadi(prev=>prev.filter(x=>x.id!==p.id));showToast("Produk dihapus");},labelYa:"Ya, Hapus"});
+
+  return<div className="page-pad">
+    <div className="row-between" style={{marginBottom:16}}>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22}}>📦 Stok & Produk</div>
+      <button className="btn-prime" onClick={()=>setModalTambah(true)}>+ Produk</button>
+    </div>
+    {produkJadi.map(p=><div key={p.id} className="prod-card" style={{marginBottom:10}}>
+      <div className="row-between" style={{marginBottom:8}}>
+        <div className="row"><span style={{fontSize:24}}>{p.emoji}</span>
+          <div><div style={{fontWeight:800,fontSize:15}}>{p.nama}</div>
+            <div style={{fontSize:12,color:"var(--muted)"}}>Stok: <b style={{color:p.stok===0?"#F87171":p.stok<=5?"var(--gold)":"var(--green)"}}>{p.stok} pcs</b></div>
+          </div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{color:"var(--red)",fontWeight:700,fontFamily:"'Space Grotesk',sans-serif"}}>{fmt(p.hargaEcer)}</div>
+          <div style={{color:"var(--gold)",fontSize:12,fontWeight:600}}>{fmt(p.hargaReseller)} reseller</div>
+        </div>
+      </div>
+      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+        {p.hpp>0&&<span className="tag" style={{background:"rgba(230,81,0,.1)",color:"var(--orange)"}}>HPP {fmt(p.hpp)}</span>}
+        {p.hpp>0&&<span className="tag" style={{background:"rgba(46,125,50,.1)",color:"var(--green)"}}>Margin {Math.round((p.hargaEcer-p.hpp)/p.hargaEcer*100)}%</span>}
+        <ExpBadge exp={p.exp}/>
+        <StokBadge stok={p.stok} stokMin={5}/>
+      </div>
+      <div style={{display:"flex",gap:8}}>
+        <button className="btn-out" onClick={()=>bukaModa(p)} style={{flex:1}}>✏️ Edit Harga & Exp</button>
+        <button className="btn-out" onClick={()=>setDetail(p)} style={{flex:1}}>📋 Riwayat</button>
+        <button className="btn-red" onClick={()=>hapus(p)}>🗑</button>
+      </div>
+    </div>)}
+
+    {/* Modal Edit Harga */}
+    {modalEdit&&<Modal title={`Edit ${modalEdit.nama}`} onClose={()=>setModalEdit(null)}>
+      <div className="frow"><label className="lbl">Harga Ecer (Rp)</label>
+        <input className={`inp${errors.hargaEcer?" error":""}`} type="number" value={form.hargaEcer} onChange={e=>setForm(f=>({...f,hargaEcer:e.target.value}))}/>
+        {errors.hargaEcer&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.hargaEcer}</div>}
+      </div>
+      <div className="frow"><label className="lbl">Harga Reseller (Rp)</label>
+        <input className={`inp${errors.hargaReseller?" error":""}`} type="number" value={form.hargaReseller} onChange={e=>setForm(f=>({...f,hargaReseller:e.target.value}))}/>
+        {errors.hargaReseller&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.hargaReseller}</div>}
+      </div>
+      <div className="frow"><label className="lbl">Tanggal Expired</label>
+        <input className="inp" type="date" value={form.exp} onChange={e=>setForm(f=>({...f,exp:e.target.value}))}/>
+      </div>
+      <button className="btn-prime" onClick={simpanEdit} style={{width:"100%"}}>Simpan</button>
+    </Modal>}
+
+    {/* Modal Tambah Produk */}
+    {modalTambah&&<Modal title="Tambah Produk Baru" onClose={()=>setModalTambah(false)}>
+      <div className="frow"><label className="lbl">Nama Produk *</label>
+        <input className={`inp${errors.nama?" error":""}`} value={formBaru.nama} onChange={e=>setFormBaru(f=>({...f,nama:e.target.value}))} placeholder="Contoh: Ikan Bilis Balado"/>
+        {errors.nama&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.nama}</div>}
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Emoji</label>
+          <input className="inp" value={formBaru.emoji} onChange={e=>setFormBaru(f=>({...f,emoji:e.target.value}))}/>
+        </div>
+        <div className="frow"><label className="lbl">Stok Awal</label>
+          <input className="inp" type="number" value={formBaru.stok} onChange={e=>setFormBaru(f=>({...f,stok:e.target.value}))} placeholder="0"/>
+        </div>
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Harga Ecer *</label>
+          <input className={`inp${errors.hargaEcer?" error":""}`} type="number" value={formBaru.hargaEcer} onChange={e=>setFormBaru(f=>({...f,hargaEcer:e.target.value}))} placeholder="60000"/>
+          {errors.hargaEcer&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.hargaEcer}</div>}
+        </div>
+        <div className="frow"><label className="lbl">Harga Reseller</label>
+          <input className="inp" type="number" value={formBaru.hargaReseller} onChange={e=>setFormBaru(f=>({...f,hargaReseller:e.target.value}))} placeholder="52000"/>
+        </div>
+      </div>
+      <div className="frow"><label className="lbl">Link ke Resep</label>
+        <select className="sel" value={formBaru.resepId} onChange={e=>setFormBaru(f=>({...f,resepId:e.target.value}))}>
+          <option value="">— Tidak ada —</option>
+          {resep.map(r=><option key={r.id} value={r.id}>{r.namaProduk}</option>)}
+        </select>
+      </div>
+      <div className="frow"><label className="lbl">Tanggal Expired</label>
+        <input className="inp" type="date" value={formBaru.exp} onChange={e=>setFormBaru(f=>({...f,exp:e.target.value}))}/>
+      </div>
+      <button className="btn-prime" onClick={tambahProduk} style={{width:"100%"}}>+ Tambah Produk</button>
+    </Modal>}
+
+    {/* Modal Detail Riwayat */}
+    {detail&&<Modal title={`${detail.emoji} ${detail.nama}`} onClose={()=>setDetail(null)}>
+      <div style={{marginBottom:14}}>
+        <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:12}}>
+          <div className="stat-card" style={{flex:1,minWidth:100}}>
+            <div className="stat-lbl">Stok</div>
+            <div className="stat-val" style={{color:"var(--green)"}}>{detail.stok} pcs</div>
+          </div>
+          <div className="stat-card" style={{flex:1,minWidth:100}}>
+            <div className="stat-lbl">HPP</div>
+            <div className="stat-val" style={{color:"var(--orange)",fontSize:16}}>{fmt(detail.hpp)}</div>
+          </div>
+          <div className="stat-card" style={{flex:1,minWidth:100}}>
+            <div className="stat-lbl">Margin</div>
+            <div className="stat-val" style={{color:"var(--green)",fontSize:16}}>{detail.hpp>0?Math.round((detail.hargaEcer-detail.hpp)/detail.hargaEcer*100)+"%":"—"}</div>
+          </div>
+        </div>
+      </div>
+      <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>📋 Batch Produksi</div>
+      {batchProduksi.filter(b=>b.resepId===detail.resepId).slice(0,10).map(b=><div key={b.id} className="trx-item" style={{marginBottom:6}}>
+        <div className="row-between">
+          <div>
+            <div style={{fontSize:13,fontWeight:700}}>🍳 {fmtTgl(b.tglProd||b.tgl)}</div>
+            <div style={{fontSize:12,color:"var(--muted)"}}>{b.pcsJadi} pcs{b.catatan?` · ${b.catatan}`:""}</div>
+            {b.tglExp&&<div style={{fontSize:12,color:"var(--orange)",fontWeight:600}}>⏳ Exp: {fmtTgl(b.tglExp)}</div>}
+          </div>
+          <div style={{textAlign:"right"}}>
+            <div style={{color:"var(--orange)",fontWeight:700,fontSize:13}}>{fmt(b.totalBiaya)}</div>
+            <div style={{fontSize:11,color:"var(--muted)"}}>HPP {fmt(b.hppPerPcs)}</div>
+          </div>
+        </div>
+      </div>)}
+      {batchProduksi.filter(b=>b.resepId===detail.resepId).length===0&&<div className="empty-state" style={{padding:20}}>Belum ada batch untuk produk ini</div>}
+    </Modal>}
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 5 — BAHAN BAKU
+══════════════════════════════════════════════════════ */
+function BahanBaku({bahanBaku,setBahanBaku,pembelianBahan,setPembelianBahan,showToast,setKonfirm}){
+  const[tab,setTab]=useState(0);
+  const[modalBeli,setModalBeli]=useState(false);
+  const[modalTambah,setModalTambah]=useState(false);
+  const[modalEdit,setModalEdit]=useState(null); // edit bahan
+  const[modalTambahStok,setModalTambahStok]=useState(null); // tambah stok cepat
+  const[formBeli,setFormBeli]=useState({supplier:"",tgl:todayStr,items:[]});
+  const[formTambah,setFormTambah]=useState({nama:"",satuan:"kg",stok:"",hargaBeli:"",stokMin:"",emoji:"🧂"});
+  const[formEdit,setFormEdit]=useState({});
+  const[tambahStokForm,setTambahStokForm]=useState({qty:"",harga:"",catatan:""});
+  const[errors,setErrors]=useState({});
+  const[newItem,setNewItem]=useState({bid:"",qty:"",harga:""});
+
+  const sorted=[...bahanBaku].sort((a,b)=>(a.stok<=a.stokMin?-1:1)-(b.stok<=b.stokMin?-1:1));
+  const SATUAN=["kg","gram","liter","ml","pcs","butir","lembar","tabung"];
+
+  const tambahItemBeli=()=>{
+    if(!newItem.bid||!newItem.qty||!newItem.harga)return;
+    const b=bahanBaku.find(x=>x.id===newItem.bid);
+    const item={bid:newItem.bid,nama:b?.nama,qty:+newItem.qty,harga:+newItem.harga,subtotal:+newItem.qty*+newItem.harga};
+    setFormBeli(f=>({...f,items:[...f.items,item]}));
+    setNewItem({bid:"",qty:"",harga:""});
+  };
+  const hapusItemBeli=(idx)=>setFormBeli(f=>({...f,items:f.items.filter((_,i)=>i!==idx)}));
+
+  const simpanBeli=()=>{
+    if(!formBeli.supplier.trim()||formBeli.items.length===0){showToast("Isi supplier dan item","error");return;}
+    const total=formBeli.items.reduce((s,i)=>s+i.subtotal,0);
+    const pembelian={id:uid(),tgl:formBeli.tgl,supplier:formBeli.supplier,items:formBeli.items,total};
+    setBahanBaku(prev=>prev.map(b=>{const it=formBeli.items.find(i=>i.bid===b.id);if(!it)return b;return{...b,stok:b.stok+it.qty,hargaBeli:it.harga};}));
+    setPembelianBahan(prev=>[pembelian,...prev]);
+    showToast("Pembelian bahan berhasil dicatat ✅");
+    setModalBeli(false);setFormBeli({supplier:"",tgl:todayStr,items:[]});
+  };
+
+  const simpanTambah=()=>{
+    const e={};if(!formTambah.nama.trim())e.nama="Nama wajib";if(!formTambah.hargaBeli||+formTambah.hargaBeli<=0)e.hargaBeli="Harga wajib";
+    setErrors(e);if(Object.keys(e).length)return;
+    setBahanBaku(prev=>[...prev,{id:uid(),nama:formTambah.nama,satuan:formTambah.satuan,stok:+formTambah.stok||0,hargaBeli:+formTambah.hargaBeli,stokMin:+formTambah.stokMin||0,emoji:formTambah.emoji||"🧂"}]);
+    showToast("Bahan baru ditambah ✅");setModalTambah(false);setFormTambah({nama:"",satuan:"kg",stok:"",hargaBeli:"",stokMin:"",emoji:"🧂"});
+  };
+
+  const bukaEdit=(b)=>{setModalEdit(b);setFormEdit({nama:b.nama,emoji:b.emoji,satuan:b.satuan,hargaBeli:b.hargaBeli,stokMin:b.stokMin});setErrors({});};
+  const simpanEdit=()=>{
+    const e={};if(!formEdit.nama?.trim())e.nama="Nama wajib";if(!formEdit.hargaBeli||+formEdit.hargaBeli<=0)e.hargaBeli="Harga wajib";
+    setErrors(e);if(Object.keys(e).length)return;
+    setBahanBaku(prev=>prev.map(b=>b.id===modalEdit.id?{...b,...formEdit,hargaBeli:+formEdit.hargaBeli,stokMin:+formEdit.stokMin||0}:b));
+    showToast("Bahan diperbarui ✅");setModalEdit(null);
+  };
+
+  const bukaTambahStok=(b)=>{setModalTambahStok(b);setTambahStokForm({qty:"",harga:b.hargaBeli,catatan:""});};
+  const simpanTambahStok=()=>{
+    if(!tambahStokForm.qty||+tambahStokForm.qty<=0){showToast("Qty harus diisi","error");return;}
+    const b=modalTambahStok;
+    const qty=+tambahStokForm.qty;
+    const harga=+tambahStokForm.harga||b.hargaBeli;
+    // update stok bahan
+    setBahanBaku(prev=>prev.map(x=>x.id===b.id?{...x,stok:x.stok+qty,hargaBeli:harga}:x));
+    // catat sebagai pembelian cepat
+    const pembelian={id:uid(),tgl:todayStr,supplier:tambahStokForm.catatan||"Pembelian langsung",
+      items:[{bid:b.id,nama:b.nama,qty,harga,subtotal:qty*harga}],total:qty*harga};
+    setPembelianBahan(prev=>[pembelian,...prev]);
+    showToast(`+${qty} ${b.satuan} ${b.nama} ditambah ✅`);
+    setModalTambahStok(null);
+  };
+
+  const hapusBahan=(b)=>setKonfirm({judul:"Hapus Bahan?",pesan:`Hapus "${b.nama}"?`,onYa:()=>{setBahanBaku(prev=>prev.filter(x=>x.id!==b.id));showToast("Bahan dihapus");}});
+  const hapusPembelian=(p)=>setKonfirm({judul:"Hapus Riwayat?",pesan:"Hapus catatan pembelian ini? Stok tidak dikembalikan.",onYa:()=>{setPembelianBahan(prev=>prev.filter(x=>x.id!==p.id));showToast("Riwayat dihapus");}});
+
+  return<div className="page-pad">
+    <div className="row-between" style={{marginBottom:12}}>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:20}}>🧂 Bahan Baku</div>
+      <div style={{display:"flex",gap:6}}>
+        <button className="btn-gold" style={{fontSize:13,padding:"9px 12px"}} onClick={()=>setModalBeli(true)}>🛒 Beli</button>
+        <button className="btn-out" style={{fontSize:13,padding:"9px 12px"}} onClick={()=>setModalTambah(true)}>+ Bahan</button>
+      </div>
+    </div>
+    <div className="tab-bar">
+      {["Stok Bahan","Riwayat Beli"].map((t,i)=><button key={i} className={`tab${tab===i?" active":""}`} onClick={()=>setTab(i)}>{t}</button>)}
+    </div>
+
+    {tab===0&&sorted.map(b=>{
+      const kritis=b.stok<=b.stokMin;
+      const habis=b.stok===0;
+      return<div key={b.id} className="card" style={{padding:"12px 14px",marginBottom:8}}>
+        <div className="row-between" style={{marginBottom:8}}>
+          <div className="row"><span style={{fontSize:20}}>{b.emoji}</span>
+            <div>
+              <div style={{fontWeight:700,fontSize:14}}>{b.nama}</div>
+              <div style={{fontSize:11,color:"var(--muted)"}}>Min: {b.stokMin} {b.satuan} · {fmt(b.hargaBeli)}/{b.satuan}</div>
+            </div>
+          </div>
+          <div style={{textAlign:"right",minWidth:70}}>
+            <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:17,color:habis?"#F87171":kritis?"var(--gold)":"var(--green)"}}>{b.stok}</div>
+            <div style={{fontSize:11,color:"var(--muted)"}}>{b.satuan}</div>
+          </div>
+        </div>
+        {kritis&&<div style={{marginBottom:6}}><StokBadge stok={b.stok} stokMin={b.stokMin}/></div>}
+        {/* Tombol aksi 3 kolom */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 44px",gap:6}}>
+          <button className="btn-green" style={{fontSize:12,padding:"7px 8px",minHeight:38}} onClick={()=>bukaTambahStok(b)}>➕ Tambah Stok</button>
+          <button className="btn-out" style={{fontSize:12,padding:"7px 8px",minHeight:38}} onClick={()=>bukaEdit(b)}>✏️ Edit Info</button>
+          <button className="btn-red" style={{fontSize:12,padding:"7px 8px",minHeight:38}} onClick={()=>hapusBahan(b)}>🗑</button>
+        </div>
+      </div>;
+    })}
+
+    {tab===1&&<>
+      {pembelianBahan.map(p=><div key={p.id} className="trx-item" style={{marginBottom:8}}>
+        <div className="row-between" style={{marginBottom:6}}>
+          <div><div style={{fontWeight:700,fontSize:13}}>{p.supplier}</div>
+            <div style={{fontSize:11,color:"var(--muted)"}}>{fmtTgl(p.tgl)}</div>
+          </div>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,color:"var(--orange)"}}>{fmt(p.total)}</div>
+            <button className="btn-red" style={{fontSize:11,padding:"4px 8px",minHeight:32}} onClick={()=>hapusPembelian(p)}>🗑</button>
+          </div>
+        </div>
+        {p.items.map((it,i)=><div key={i} style={{fontSize:12,color:"var(--muted)",padding:"2px 0"}}>· {it.nama} {it.qty} {bahanBaku.find(b=>b.id===it.bid)?.satuan||""} × {fmt(it.harga)} = <b>{fmt(it.subtotal)}</b></div>)}
+      </div>)}
+      {pembelianBahan.length===0&&<div className="empty-state"><div className="icon">📋</div><div>Belum ada pembelian bahan</div></div>}
+    </>}
+
+    {/* Modal Tambah Stok Cepat */}
+    {modalTambahStok&&<Modal title={`➕ Tambah Stok — ${modalTambahStok.nama}`} onClose={()=>setModalTambahStok(null)}>
+      <div style={{background:"rgba(46,125,50,.07)",border:"1px solid rgba(46,125,50,.2)",borderRadius:10,padding:"10px 14px",marginBottom:14}}>
+        <div style={{fontSize:13,color:"var(--muted)"}}>Stok saat ini</div>
+        <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22,color:"var(--green)"}}>{modalTambahStok.stok} {modalTambahStok.satuan}</div>
+      </div>
+      <div className="frow"><label className="lbl">Jumlah Tambahan ({modalTambahStok.satuan}) *</label>
+        <input className="inp" type="number" value={tambahStokForm.qty} onChange={e=>setTambahStokForm(f=>({...f,qty:e.target.value}))} placeholder={`Masukkan jumlah ${modalTambahStok.satuan}`} autoFocus/>
+      </div>
+      <div className="frow"><label className="lbl">Harga Beli / {modalTambahStok.satuan} (Rp)</label>
+        <input className="inp" type="number" value={tambahStokForm.harga} onChange={e=>setTambahStokForm(f=>({...f,harga:e.target.value}))}/>
+        <div style={{fontSize:11,color:"var(--muted)"}}>Harga terakhir: {fmt(modalTambahStok.hargaBeli)}</div>
+      </div>
+      <div className="frow"><label className="lbl">Nama Supplier / Catatan</label>
+        <input className="inp" value={tambahStokForm.catatan} onChange={e=>setTambahStokForm(f=>({...f,catatan:e.target.value}))} placeholder="Pasar Kramat Jati"/>
+      </div>
+      {tambahStokForm.qty>0&&<div className="box-hl" style={{marginBottom:14}}>
+        <div className="summary-row"><span>Tambah stok</span><span style={{fontWeight:700,color:"var(--green)"}}>+{tambahStokForm.qty} {modalTambahStok.satuan}</span></div>
+        <div className="summary-row"><span>Total bayar</span><span style={{fontWeight:700,color:"var(--orange)"}}>{fmt(+tambahStokForm.qty*(+tambahStokForm.harga||0))}</span></div>
+        <div className="summary-row"><span>Stok setelah tambah</span><span style={{fontWeight:800,color:"var(--green)"}}>{modalTambahStok.stok+(+tambahStokForm.qty||0)} {modalTambahStok.satuan}</span></div>
+      </div>}
+      <button className="btn-green" onClick={simpanTambahStok} style={{width:"100%"}}>✅ Simpan Tambah Stok</button>
+    </Modal>}
+
+    {/* Modal Edit Info Bahan */}
+    {modalEdit&&<Modal title={`✏️ Edit — ${modalEdit.nama}`} onClose={()=>setModalEdit(null)}>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Nama *</label>
+          <input className={`inp${errors.nama?" error":""}`} value={formEdit.nama} onChange={e=>setFormEdit(f=>({...f,nama:e.target.value}))}/>
+          {errors.nama&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.nama}</div>}
+        </div>
+        <div className="frow"><label className="lbl">Emoji</label>
+          <input className="inp" value={formEdit.emoji} onChange={e=>setFormEdit(f=>({...f,emoji:e.target.value}))}/>
+        </div>
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Satuan</label>
+          <select className="sel" value={formEdit.satuan} onChange={e=>setFormEdit(f=>({...f,satuan:e.target.value}))}>
+            {SATUAN.map(s=><option key={s}>{s}</option>)}
+          </select>
+        </div>
+        <div className="frow"><label className="lbl">Stok Minimum</label>
+          <input className="inp" type="number" value={formEdit.stokMin} onChange={e=>setFormEdit(f=>({...f,stokMin:e.target.value}))}/>
+        </div>
+      </div>
+      <div className="frow"><label className="lbl">Harga Beli / Satuan (Rp) *</label>
+        <input className={`inp${errors.hargaBeli?" error":""}`} type="number" value={formEdit.hargaBeli} onChange={e=>setFormEdit(f=>({...f,hargaBeli:e.target.value}))}/>
+        {errors.hargaBeli&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.hargaBeli}</div>}
+      </div>
+      <button className="btn-prime" onClick={simpanEdit} style={{width:"100%"}}>💾 Simpan</button>
+    </Modal>}
+
+    {/* Modal Beli Bahan (multi-item) */}
+    {modalBeli&&<Modal title="🛒 Catat Pembelian Bahan" onClose={()=>setModalBeli(false)}>
+      <div className="frow"><label className="lbl">Supplier / Toko</label>
+        <input className="inp" value={formBeli.supplier} onChange={e=>setFormBeli(f=>({...f,supplier:e.target.value}))} placeholder="Pasar Kramat Jati"/>
+      </div>
+      <div className="frow"><label className="lbl">Tanggal</label>
+        <input className="inp" type="date" value={formBeli.tgl} onChange={e=>setFormBeli(f=>({...f,tgl:e.target.value}))}/>
+      </div>
+      <div style={{fontWeight:700,fontSize:13,color:"var(--text2)",marginBottom:8}}>Tambah Item:</div>
+      <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:12,background:"var(--bg2)",borderRadius:10,padding:10}}>
+        <select className="sel" value={newItem.bid} onChange={e=>{const b=bahanBaku.find(x=>x.id===e.target.value);setNewItem(n=>({...n,bid:e.target.value,harga:b?.hargaBeli||""}));}}>
+          <option value="">— Pilih bahan —</option>
+          {bahanBaku.map(b=><option key={b.id} value={b.id}>{b.emoji} {b.nama}</option>)}
+        </select>
+        <div style={{display:"flex",gap:8}}>
+          <div style={{flex:1}}><label className="lbl" style={{fontSize:10}}>Jumlah</label>
+            <input className="inp" type="number" value={newItem.qty} onChange={e=>setNewItem(n=>({...n,qty:e.target.value}))} placeholder="Qty"/>
+          </div>
+          <div style={{flex:1}}><label className="lbl" style={{fontSize:10}}>Harga/Satuan (Rp)</label>
+            <input className="inp" type="number" value={newItem.harga} onChange={e=>setNewItem(n=>({...n,harga:e.target.value}))} placeholder="0"/>
+          </div>
+          <div style={{display:"flex",alignItems:"flex-end"}}>
+            <button className="btn-green" onClick={tambahItemBeli} style={{minWidth:44}}>+</button>
+          </div>
+        </div>
+        {newItem.qty&&newItem.harga&&<div style={{fontSize:12,color:"var(--muted)"}}>Subtotal: {fmt(+newItem.qty*+newItem.harga)}</div>}
+      </div>
+      {formBeli.items.length>0&&<>
+        <div style={{fontWeight:700,fontSize:13,marginBottom:6}}>Daftar Item:</div>
+        {formBeli.items.map((it,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:"1px solid var(--border2)"}}>
+          <span style={{fontSize:13,flex:1}}>{it.nama} × {it.qty}</span>
+          <span style={{fontWeight:700,marginRight:8}}>{fmt(it.subtotal)}</span>
+          <button onClick={()=>hapusItemBeli(i)} style={{background:"none",border:"none",color:"#F87171",cursor:"pointer",padding:"4px",fontSize:16}}>✕</button>
+        </div>)}
+        <div style={{fontWeight:800,textAlign:"right",marginTop:8,color:"var(--orange)"}}>Total: {fmt(formBeli.items.reduce((s,i)=>s+i.subtotal,0))}</div>
+      </>}
+      <button className="btn-prime" onClick={simpanBeli} style={{width:"100%",marginTop:14}} disabled={formBeli.items.length===0}>✅ Simpan Pembelian</button>
+    </Modal>}
+
+    {/* Modal Tambah Bahan Baru */}
+    {modalTambah&&<Modal title="+ Tambah Bahan Baru" onClose={()=>setModalTambah(false)}>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Nama *</label>
+          <input className={`inp${errors.nama?" error":""}`} value={formTambah.nama} onChange={e=>setFormTambah(f=>({...f,nama:e.target.value}))} placeholder="Daging Sapi"/>
+          {errors.nama&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.nama}</div>}
+        </div>
+        <div className="frow"><label className="lbl">Emoji</label>
+          <input className="inp" value={formTambah.emoji} onChange={e=>setFormTambah(f=>({...f,emoji:e.target.value}))}/>
+        </div>
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Satuan</label>
+          <select className="sel" value={formTambah.satuan} onChange={e=>setFormTambah(f=>({...f,satuan:e.target.value}))}>
+            {SATUAN.map(s=><option key={s}>{s}</option>)}
+          </select>
+        </div>
+        <div className="frow"><label className="lbl">Stok Awal</label>
+          <input className="inp" type="number" value={formTambah.stok} onChange={e=>setFormTambah(f=>({...f,stok:e.target.value}))} placeholder="0"/>
+        </div>
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Harga Beli *</label>
+          <input className={`inp${errors.hargaBeli?" error":""}`} type="number" value={formTambah.hargaBeli} onChange={e=>setFormTambah(f=>({...f,hargaBeli:e.target.value}))} placeholder="150000"/>
+          {errors.hargaBeli&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.hargaBeli}</div>}
+        </div>
+        <div className="frow"><label className="lbl">Stok Minimum</label>
+          <input className="inp" type="number" value={formTambah.stokMin} onChange={e=>setFormTambah(f=>({...f,stokMin:e.target.value}))} placeholder="3"/>
+        </div>
+      </div>
+      <button className="btn-prime" onClick={simpanTambah} style={{width:"100%"}}>+ Tambah Bahan</button>
+    </Modal>}
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 6 — RESEP
+══════════════════════════════════════════════════════ */
+function ResepPage({resep,setResep,bahanBaku,showToast,setKonfirm}){
+  const[detail,setDetail]=useState(null);
+  const[modalForm,setModalForm]=useState(false);
+  const[editData,setEditData]=useState(null);
+  const[form,setForm]=useState({namaProduk:"",emoji:"🍱",hasilPcs:"",beratPcs:"",biayaTenaga:"",biayaLain:"",bahan:[]});
+  const[newBahan,setNewBahan]=useState({bid:"",qty:""});
+  const hitungEst=(r,bhn)=>r.reduce((t,item)=>{const b=bhn.find(x=>x.id===item.bid);return t+(b?.hargaBeli||0)*item.qty;},0);
+
+  const bukaForm=(r=null)=>{
+    setEditData(r);
+    if(r)setForm({namaProduk:r.namaProduk,emoji:r.emoji,hasilPcs:r.hasilPcs,beratPcs:r.beratPcs,biayaTenaga:r.biayaTenaga,biayaLain:r.biayaLain,bahan:[...r.bahan]});
+    else setForm({namaProduk:"",emoji:"🍱",hasilPcs:"",beratPcs:"",biayaTenaga:"",biayaLain:"",bahan:[]});
+    setModalForm(true);
+  };
+  const simpan=()=>{
+    if(!form.namaProduk.trim()||!form.hasilPcs){showToast("Nama & hasil pcs wajib","error");return;}
+    const r={id:editData?.id||uid(),namaProduk:form.namaProduk,emoji:form.emoji||"🍱",hasilPcs:+form.hasilPcs,beratPcs:+form.beratPcs||0,biayaTenaga:+form.biayaTenaga||0,biayaLain:+form.biayaLain||0,bahan:form.bahan};
+    if(editData)setResep(prev=>prev.map(x=>x.id===editData.id?r:x));
+    else setResep(prev=>[...prev,r]);
+    showToast(editData?"Resep diperbarui ✅":"Resep baru ditambah ✅");setModalForm(false);
+  };
+  const hapus=(r)=>setKonfirm({judul:"Hapus Resep?",pesan:`Hapus resep "${r.namaProduk}"?`,onYa:()=>{setResep(prev=>prev.filter(x=>x.id!==r.id));showToast("Resep dihapus");}});
+  const tambahBahan=()=>{
+    if(!newBahan.bid||!newBahan.qty)return;
+    const b=bahanBaku.find(x=>x.id===newBahan.bid);
+    setForm(f=>({...f,bahan:[...f.bahan,{bid:newBahan.bid,qty:+newBahan.qty,satuan:b?.satuan||""}]}));
+    setNewBahan({bid:"",qty:""});
+  };
+  const hapusBahan=(i)=>setForm(f=>({...f,bahan:f.bahan.filter((_,idx)=>idx!==i)}));
+  const biayaEst=form.bahan.length>0?hitungEst(form.bahan,bahanBaku):0;
+  const hppEst=+form.hasilPcs>0?(biayaEst+(+form.biayaTenaga||0)+(+form.biayaLain||0))/(+form.hasilPcs):0;
+
+  return<div className="page-pad">
+    <div className="row-between" style={{marginBottom:16}}>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22}}>📋 Resep</div>
+      <button className="btn-prime" onClick={()=>bukaForm()}>+ Resep</button>
+    </div>
+    {resep.map(r=>{
+      const est=hitungEst(r.bahan,bahanBaku);
+      const hpp=r.hasilPcs>0?(est+r.biayaTenaga+r.biayaLain)/r.hasilPcs:0;
+      return<div key={r.id} className="resep-card" style={{marginBottom:10}}>
+        <div className="row-between" style={{marginBottom:8}}>
+          <div className="row"><span style={{fontSize:22}}>{r.emoji}</span>
+            <div><div style={{fontWeight:800,fontSize:15}}>{r.namaProduk}</div>
+              <div style={{fontSize:12,color:"var(--muted)"}}>{r.hasilPcs} pcs/batch · {r.beratPcs}gr · {r.bahan.length} bahan</div>
+            </div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <div style={{color:"var(--orange)",fontWeight:700,fontSize:14}}>{fmt(est)}</div>
+            <div style={{fontSize:11,color:"var(--muted)"}}>HPP ~{fmt(hpp)}/pcs</div>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn-out" onClick={()=>setDetail(r)} style={{flex:1}}>👁 Lihat Detail</button>
+          <button className="btn-out" onClick={()=>bukaForm(r)} style={{flex:1}}>✏️ Edit</button>
+          <button className="btn-red" onClick={()=>hapus(r)}>🗑</button>
+        </div>
+      </div>;
+    })}
+
+    {detail&&<Modal title={`${detail.emoji} ${detail.namaProduk}`} onClose={()=>setDetail(null)}>
+      <div style={{marginBottom:12}}>
+        <span className="tag" style={{background:"rgba(46,125,50,.1)",color:"var(--green)",marginRight:6}}>{detail.hasilPcs} pcs/batch</span>
+        <span className="tag" style={{background:"rgba(230,81,0,.1)",color:"var(--orange)"}}>{detail.beratPcs}gr/kemasan</span>
+      </div>
+      <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>🧂 Komposisi Bahan</div>
+      {detail.bahan.map((item,i)=>{const b=bahanBaku.find(x=>x.id===item.bid);return<div key={i} className="bahan-row">
+        <span>{b?.emoji} {b?.nama||item.bid}</span>
+        <span style={{fontWeight:600}}>{item.qty} {item.satuan} · {fmt((b?.hargaBeli||0)*item.qty)}</span>
+      </div>;})}
+      <div style={{marginTop:10,padding:"10px 0",borderTop:"2px solid var(--border)"}}>
+        <div className="summary-row"><span>Total bahan</span><span style={{color:"var(--orange)",fontWeight:700}}>{fmt(hitungEst(detail.bahan,bahanBaku))}</span></div>
+        <div className="summary-row"><span>Tenaga + lain</span><span>{fmt(detail.biayaTenaga+detail.biayaLain)}</span></div>
+        <div className="summary-row"><span style={{fontWeight:800}}>HPP estimasi</span><span style={{fontWeight:800,color:"var(--orange)"}}>{fmt(detail.hasilPcs>0?(hitungEst(detail.bahan,bahanBaku)+detail.biayaTenaga+detail.biayaLain)/detail.hasilPcs:0)}/pcs</span></div>
+      </div>
+    </Modal>}
+
+    {modalForm&&<Modal title={editData?"Edit Resep":"Tambah Resep Baru"} onClose={()=>setModalForm(false)}>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Nama Produk *</label>
+          <input className="inp" value={form.namaProduk} onChange={e=>setForm(f=>({...f,namaProduk:e.target.value}))} placeholder="Rendang Sapi 150gr"/>
+        </div>
+        <div className="frow"><label className="lbl">Emoji</label>
+          <input className="inp" value={form.emoji} onChange={e=>setForm(f=>({...f,emoji:e.target.value}))}/>
+        </div>
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Hasil Pcs *</label>
+          <input className="inp" type="number" value={form.hasilPcs} onChange={e=>setForm(f=>({...f,hasilPcs:e.target.value}))} placeholder="30"/>
+        </div>
+        <div className="frow"><label className="lbl">Berat/Kemasan (gr)</label>
+          <input className="inp" type="number" value={form.beratPcs} onChange={e=>setForm(f=>({...f,beratPcs:e.target.value}))} placeholder="150"/>
+        </div>
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Biaya Tenaga (Rp)</label>
+          <input className="inp" type="number" value={form.biayaTenaga} onChange={e=>setForm(f=>({...f,biayaTenaga:e.target.value}))} placeholder="50000"/>
+        </div>
+        <div className="frow"><label className="lbl">Biaya Lain (Rp)</label>
+          <input className="inp" type="number" value={form.biayaLain} onChange={e=>setForm(f=>({...f,biayaLain:e.target.value}))} placeholder="15000"/>
+        </div>
+      </div>
+      <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>🧂 Bahan-bahan</div>
+      {form.bahan.map((item,i)=>{const b=bahanBaku.find(x=>x.id===item.bid);return<div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+        <span style={{flex:1,fontSize:13}}>{b?.emoji} {b?.nama} × {item.qty} {item.satuan}</span>
+        <button className="btn-red" onClick={()=>hapusBahan(i)} style={{minHeight:32,padding:"4px 8px",fontSize:12}}>✕</button>
+      </div>;})}
+      <div style={{display:"flex",gap:8,marginBottom:12}}>
+        <select className="sel" style={{flex:2}} value={newBahan.bid} onChange={e=>setNewBahan(n=>({...n,bid:e.target.value}))}>
+          <option value="">Pilih bahan</option>
+          {bahanBaku.map(b=><option key={b.id} value={b.id}>{b.emoji} {b.nama}</option>)}
+        </select>
+        <input className="inp" style={{flex:1}} type="number" value={newBahan.qty} onChange={e=>setNewBahan(n=>({...n,qty:e.target.value}))} placeholder="Qty"/>
+        <button className="btn-green" onClick={tambahBahan}>+</button>
+      </div>
+      {form.bahan.length>0&&<div className="hpp-preview" style={{marginBottom:14}}>
+        <div className="summary-row"><span>Est. biaya bahan</span><span style={{color:"var(--orange)",fontWeight:700}}>{fmt(biayaEst)}</span></div>
+        <div className="summary-row"><span>HPP estimasi</span><span style={{color:"var(--orange)",fontWeight:700}}>{fmt(hppEst)}/pcs</span></div>
+      </div>}
+      <button className="btn-prime" onClick={simpan} style={{width:"100%"}}>💾 Simpan Resep</button>
+    </Modal>}
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 7 — RESELLER
+══════════════════════════════════════════════════════ */
+function ResellerPage({reseller,setReseller,penjualan,showToast,setKonfirm}){
+  const[modal,setModal]=useState(false);
+  const[editData,setEditData]=useState(null);
+  const[detail,setDetail]=useState(null);
+  const[form,setForm]=useState({nama:"",hp:"",tipe:"Reseller",kota:"",diskon:0});
+  const[errors,setErrors]=useState({});
+
+  const bukaForm=(r=null)=>{setEditData(r);setForm(r?{nama:r.nama,hp:r.hp,tipe:r.tipe,kota:r.kota,diskon:r.diskon}:{nama:"",hp:"",tipe:"Reseller",kota:"",diskon:0});setErrors({});setModal(true);};
+  const validasiWA=(hp)=>{const n=hp.replace(/\D/g,"");return(n.startsWith("08")||n.startsWith("62"))&&n.length>=10;};
+  const simpan=()=>{
+    const e={};
+    if(!form.nama.trim())e.nama="Nama wajib";
+    if(!validasiWA(form.hp))e.hp="No. WA tidak valid (08/62, min 10 digit)";
+    setErrors(e);if(Object.keys(e).length)return;
+    const r={id:editData?.id||uid(),nama:form.nama,hp:form.hp,tipe:form.tipe,kota:form.kota,diskon:+form.diskon||0};
+    if(editData)setReseller(prev=>prev.map(x=>x.id===editData.id?r:x));
+    else setReseller(prev=>[...prev,r]);
+    showToast(editData?"Reseller diperbarui ✅":"Reseller baru ditambah ✅");setModal(false);
+  };
+  const hapus=(r)=>setKonfirm({judul:"Hapus Reseller?",pesan:`Hapus "${r.nama}"?`,onYa:()=>{setReseller(prev=>prev.filter(x=>x.id!==r.id));showToast("Reseller dihapus");}});
+
+  const TIPE_COLOR={Reseller:"var(--red)",Retail:"var(--orange)",Ecer:"var(--gold)"};
+
+  return<div className="page-pad">
+    <div className="row-between" style={{marginBottom:16}}>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22}}>👥 Reseller</div>
+      <button className="btn-prime" onClick={()=>bukaForm()}>+ Reseller</button>
+    </div>
+    {reseller.map(r=>{
+      const riwayat=penjualan.filter(t=>t.resellerId===r.id);
+      const totalBelanja=riwayat.reduce((s,t)=>s+t.total,0);
+      return<div key={r.id} className="prod-card" style={{marginBottom:10}}>
+        <div className="row-between" style={{marginBottom:8}}>
+          <div className="row">
+            <div style={{width:40,height:40,borderRadius:20,background:"rgba(200,32,26,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>👤</div>
+            <div><div style={{fontWeight:800,fontSize:14}}>{r.nama}</div>
+              <div style={{fontSize:12,color:"var(--muted)"}}>{r.kota} · {r.hp}</div>
+            </div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <span className="badge" style={{background:`rgba(200,32,26,.08)`,color:TIPE_COLOR[r.tipe]||"var(--muted)"}}>{r.tipe}</span>
+            {r.diskon>0&&<div style={{fontSize:12,color:"var(--gold)",fontWeight:700,marginTop:2}}>Disc {r.diskon}%</div>}
+          </div>
+        </div>
+        <div style={{fontSize:13,color:"var(--muted)",marginBottom:10}}>
+          {riwayat.length} transaksi · Total belanja: <b style={{color:"var(--red)"}}>{fmt(totalBelanja)}</b>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="wa-btn" onClick={()=>{if(!r.hp||!r.hp.trim()){showToast("Nomor WA reseller belum diisi","error");return;}window.open(`https://wa.me/${r.hp.replace(/^0/,'62').replace(/^\+/,'')}`);}}>📱 WA</button>
+          <button className="btn-out" onClick={()=>setDetail(r)} style={{flex:1}}>Riwayat</button>
+          <button className="btn-out" onClick={()=>bukaForm(r)} style={{flex:1}}>✏️ Edit</button>
+          <button className="btn-red" onClick={()=>hapus(r)}>🗑</button>
+        </div>
+      </div>;
+    })}
+    {reseller.length===0&&<div className="empty-state"><div className="icon">👥</div><div>Belum ada reseller. Tambah reseller untuk kemudahan kasir.</div></div>}
+
+    {detail&&<Modal title={`Riwayat — ${detail.nama}`} onClose={()=>setDetail(null)}>
+      {penjualan.filter(t=>t.resellerId===detail.id).map(t=><div key={t.id} className="trx-item" style={{marginBottom:6}}>
+        <div className="row-between">
+          <div><div style={{fontSize:13,fontWeight:700}}>{fmtTgl(t.tgl)}</div>
+            <div style={{fontSize:12,color:"var(--muted)"}}>{(t.items||[]).map(i=>`${i.nama} ×${i.qty}`).join(", ")}</div>
+          </div>
+          <span style={{color:"var(--red)",fontFamily:"'Space Grotesk',sans-serif",fontWeight:700}}>{fmt(t.total)}</span>
+        </div>
+      </div>)}
+      {penjualan.filter(t=>t.resellerId===detail.id).length===0&&<div className="empty-state" style={{padding:20}}>Belum ada transaksi</div>}
+    </Modal>}
+
+    {modal&&<Modal title={editData?"Edit Reseller":"Tambah Reseller"} onClose={()=>setModal(false)}>
+      <div className="frow"><label className="lbl">Nama *</label>
+        <input className={`inp${errors.nama?" error":""}`} value={form.nama} onChange={e=>setForm(f=>({...f,nama:e.target.value}))} placeholder="Bu Rina — Warung Pak RT"/>
+        {errors.nama&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.nama}</div>}
+      </div>
+      <div className="frow"><label className="lbl">No. WA *</label>
+        <input className={`inp${errors.hp?" error":""}`} value={form.hp} onChange={e=>setForm(f=>({...f,hp:e.target.value}))} placeholder="08xxxxxxxxxx"/>
+        {errors.hp&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errors.hp}</div>}
+      </div>
+      <div className="grid2">
+        <div className="frow"><label className="lbl">Tipe</label>
+          <select className="sel" value={form.tipe} onChange={e=>setForm(f=>({...f,tipe:e.target.value}))}>
+            {["Reseller","Retail","Ecer"].map(t=><option key={t}>{t}</option>)}
+          </select>
+        </div>
+        <div className="frow"><label className="lbl">Kota</label>
+          <input className="inp" value={form.kota} onChange={e=>setForm(f=>({...f,kota:e.target.value}))} placeholder="Depok"/>
+        </div>
+      </div>
+      <div className="frow"><label className="lbl">Diskon Default (%)</label>
+        <input className="inp" type="number" min="0" max="100" value={form.diskon} onChange={e=>setForm(f=>({...f,diskon:e.target.value}))} placeholder="10"/>
+      </div>
+      <button className="btn-prime" onClick={simpan} style={{width:"100%"}}>💾 Simpan</button>
+    </Modal>}
+  </div>;
+}
+
+/* ── PENGELUARAN FORM FIELDS ────────────────────────── */
+const PENGELUARAN_KAT=["Pengiriman","Kemasan & Label","Pemasaran","Operasional","Lain-lain"];
+function PengeluaranFormFields({f,setF,errs}){
+  return<>
+    <div className="frow"><label className="lbl">Tanggal</label>
+      <input className="inp" type="date" value={f.tgl} onChange={e=>setF(x=>({...x,tgl:e.target.value}))}/>
+    </div>
+    <div className="frow"><label className="lbl">Kategori</label>
+      <select className="sel" value={f.kat} onChange={e=>setF(x=>({...x,kat:e.target.value}))}>
+        {PENGELUARAN_KAT.map(k=><option key={k}>{k}</option>)}
+      </select>
+    </div>
+    <div className="frow"><label className="lbl">Keterangan *</label>
+      <input className={`inp${errs.desc?" error":""}`} value={f.desc} onChange={e=>setF(x=>({...x,desc:e.target.value}))} placeholder="Ongkir ke reseller Bu Rina"/>
+      {errs.desc&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errs.desc}</div>}
+    </div>
+    <div className="frow"><label className="lbl">Jumlah (Rp) *</label>
+      <input className={`inp${errs.jml?" error":""}`} type="number" value={f.jml} onChange={e=>setF(x=>({...x,jml:e.target.value}))} placeholder="25000"/>
+      {errs.jml&&<div style={{fontSize:12,color:"#F87171"}}>⚠️ {errs.jml}</div>}
+    </div>
+  </>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 8 — PENGELUARAN
+══════════════════════════════════════════════════════ */
+function Pengeluaran({pengeluaran,setPengeluaran,showToast,setKonfirm}){
+  const[modal,setModal]=useState(false);
+  const[modalEdit,setModalEdit]=useState(null);
+  const[form,setForm]=useState({tgl:todayStr,kat:"Operasional",desc:"",jml:""});
+  const[formEdit,setFormEdit]=useState({});
+  const[errors,setErrors]=useState({});
+  const KAT=PENGELUARAN_KAT;
+  const KAT_COLOR={"Pengiriman":"var(--red)","Kemasan & Label":"var(--orange)","Pemasaran":"var(--gold)","Operasional":"var(--green)","Lain-lain":"var(--muted)"};
+  const KAT_EMOJI={"Pengiriman":"🚚","Kemasan & Label":"📦","Pemasaran":"📣","Operasional":"⚙️","Lain-lain":"📝"};
+
+  const simpan=()=>{
+    const e={};
+    if(!form.desc.trim())e.desc="Keterangan wajib";
+    if(!form.jml||+form.jml<=0)e.jml="Jumlah wajib";
+    setErrors(e);if(Object.keys(e).length)return;
+    setPengeluaran(prev=>[{id:uid(),tgl:form.tgl,kat:form.kat,desc:form.desc,jml:+form.jml},...prev]);
+    showToast("Pengeluaran dicatat ✅");setModal(false);setForm({tgl:todayStr,kat:"Operasional",desc:"",jml:""});
+    setErrors({});
+  };
+
+  const bukaEdit=(p)=>{setModalEdit(p);setFormEdit({tgl:p.tgl,kat:p.kat,desc:p.desc,jml:p.jml});setErrors({});};
+  const simpanEdit=()=>{
+    const e={};
+    if(!formEdit.desc?.trim())e.desc="Keterangan wajib";
+    if(!formEdit.jml||+formEdit.jml<=0)e.jml="Jumlah wajib";
+    setErrors(e);if(Object.keys(e).length)return;
+    setPengeluaran(prev=>prev.map(p=>p.id===modalEdit.id?{...p,...formEdit,jml:+formEdit.jml}:p));
+    showToast("Pengeluaran diperbarui ✅");setModalEdit(null);
+  };
+
+  const hapus=(p)=>setKonfirm({judul:"Hapus Pengeluaran?",pesan:`Hapus "${p.desc}"?`,onYa:()=>{setPengeluaran(prev=>prev.filter(x=>x.id!==p.id));showToast("Pengeluaran dihapus");}});
+
+  const summary=KAT.map(k=>({kat:k,total:pengeluaran.filter(p=>p.kat===k).reduce((s,p)=>s+p.jml,0)})).filter(x=>x.total>0);
+  const totalAll=pengeluaran.reduce((s,p)=>s+p.jml,0);
+
+  return<div className="page-pad">
+    <div className="row-between" style={{marginBottom:14}}>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:20}}>💸 Pengeluaran</div>
+      <button className="btn-prime" style={{fontSize:13,padding:"9px 14px"}} onClick={()=>{setForm({tgl:todayStr,kat:"Operasional",desc:"",jml:""});setErrors({});setModal(true);}}>+ Catat</button>
+    </div>
+
+    {summary.length>0&&<div style={{marginBottom:14}}>
+      <div style={{fontWeight:700,fontSize:13,marginBottom:8,color:"var(--text2)"}}>Ringkasan Kategori</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))",gap:8,marginBottom:8}}>
+        {summary.map(s=><div key={s.kat} className="stat-card">
+          <div style={{fontSize:11,fontWeight:700,color:KAT_COLOR[s.kat]||"var(--muted)"}}>{KAT_EMOJI[s.kat]} {s.kat}</div>
+          <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:15,color:"var(--text)"}}>{fmtRb(s.total)}</div>
+        </div>)}
+      </div>
+      <div style={{textAlign:"right",fontWeight:800,fontSize:14,color:"var(--red)"}}>Total: {fmt(totalAll)}</div>
+    </div>}
+
+    {pengeluaran.map(p=><div key={p.id} className="trx-item" style={{marginBottom:8}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+            <span className="tag" style={{background:`rgba(200,32,26,.08)`,color:KAT_COLOR[p.kat]||"var(--muted)",flexShrink:0}}>{KAT_EMOJI[p.kat]} {p.kat}</span>
+          </div>
+          <div style={{fontWeight:700,fontSize:14,wordBreak:"break-word"}}>{p.desc}</div>
+          <div style={{fontSize:12,color:"var(--muted)",marginTop:2}}>{fmtTgl(p.tgl)}</div>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,flexShrink:0}}>
+          <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,color:"var(--red)",fontSize:15}}>{fmt(p.jml)}</span>
+          <div style={{display:"flex",gap:6}}>
+            <button className="btn-out" style={{fontSize:11,padding:"4px 8px",minHeight:32}} onClick={()=>bukaEdit(p)}>✏️</button>
+            <button className="btn-red" style={{fontSize:11,padding:"4px 8px",minHeight:32}} onClick={()=>hapus(p)}>🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>)}
+    {pengeluaran.length===0&&<div className="empty-state"><div className="icon">💸</div><div>Belum ada pengeluaran dicatat</div></div>}
+
+    {/* Modal Tambah */}
+    {modal&&<Modal title="Catat Pengeluaran" onClose={()=>setModal(false)}>
+      <PengeluaranFormFields f={form} setF={setForm} errs={errors}/>
+      <button className="btn-prime" onClick={simpan} style={{width:"100%"}}>💾 Simpan</button>
+    </Modal>}
+
+    {/* Modal Edit */}
+    {modalEdit&&<Modal title={`✏️ Edit Pengeluaran`} onClose={()=>setModalEdit(null)}>
+      <div style={{background:"rgba(200,32,26,.06)",border:"1px solid rgba(200,32,26,.15)",borderRadius:10,padding:"10px 14px",marginBottom:14}}>
+        <div style={{fontSize:12,color:"var(--muted)"}}>Catatan lama</div>
+        <div style={{fontWeight:700,fontSize:14}}>{modalEdit.desc}</div>
+        <div style={{fontSize:13,color:"var(--red)",fontWeight:700}}>{fmt(modalEdit.jml)}</div>
+      </div>
+      <PengeluaranFormFields f={formEdit} setF={setFormEdit} errs={errors}/>
+      <button className="btn-prime" onClick={simpanEdit} style={{width:"100%"}}>💾 Simpan Perubahan</button>
+    </Modal>}
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 9 — LAPORAN
+══════════════════════════════════════════════════════ */
+function Laporan({penjualan,batchProduksi,pengeluaran,produkJadi,resep}){
+  const[periode,setPeriode]=useState("7");
+  const[tglAwal,setTglAwal]=useState(dAgo(7));
+  const[tglAkhir,setTglAkhir]=useState(todayStr);
+  const[errCustom,setErrCustom]=useState("");
+
+  const CHIPS=[{label:"Hari Ini",val:"0"},{label:"Kemarin",val:"1"},{label:"7 Hari",val:"7"},{label:"30 Hari",val:"30"},{label:"3 Bulan",val:"90"},{label:"Custom",val:"custom"}];
+
+  const getRange=()=>{
+    if(periode==="custom")return{dari:tglAwal,ke:tglAkhir};
+    const d=+periode;
+    return{dari:d===0?todayStr:d===1?dAgo(1):dAgo(d),ke:d===1?dAgo(1):todayStr};
+  };
+  const{dari,ke}=getRange();
+  const inRange=(tgl)=>tgl>=dari&&tgl<=ke;
+
+  // Validasi & handle custom date input
+  const handleDariChange=(val)=>{
+    if(val>tglAkhir){const oldAkhir=tglAkhir;setErrCustom("Tanggal 'Dari' tidak boleh setelah 'Sampai'. Otomatis ditukar.");setTglAwal(oldAkhir);setTglAkhir(val);}
+    else{setTglAwal(val);setErrCustom("");}
+  };
+  const handleKeChange=(val)=>{
+    if(tglAwal>val){const oldAwal=tglAwal;setErrCustom("Tanggal 'Sampai' tidak boleh sebelum 'Dari'. Otomatis ditukar.");setTglAkhir(oldAwal);setTglAwal(val);}
+    else{setTglAkhir(val);setErrCustom("");}
+  };
+
+  const jual=penjualan.filter(t=>inRange(t.tgl));
+  const batch=batchProduksi.filter(b=>inRange(b.tgl));
+  const keluar=pengeluaran.filter(p=>inRange(p.tgl));
+
+  const omzet=jual.reduce((s,t)=>s+t.total,0);
+  const biayaProd=batch.reduce((s,b)=>s+b.totalBiaya,0);
+  const biayaKeluar=keluar.reduce((s,p)=>s+p.jml,0);
+  const labaBersih=omzet-biayaProd-biayaKeluar;
+
+  // Top produk
+  const prodMap={};
+  jual.forEach(t=>(t.items||[]).forEach(i=>{if(!prodMap[i.pid])prodMap[i.pid]={nama:i.nama,emoji:i.emoji,qty:0,nilai:0};prodMap[i.pid].qty+=i.qty;prodMap[i.pid].nilai+=i.harga*i.qty;}));
+  const topProd=Object.values(prodMap).sort((a,b)=>b.qty-a.qty).slice(0,5);
+
+  // Bar chart — mengikuti filter periode aktif (max 30 hari, min 1)
+  const chartRange=useMemo(()=>{
+    const diffD=Math.min(30,Math.max(1,Math.ceil((new Date(ke+`T00:00:00`)-new Date(dari+`T00:00:00`))/86400000)+1));
+    return Array.from({length:diffD},(_,i)=>{
+      const d=dFrom(dari,i);
+      const omzD=penjualan.filter(t=>t.tgl===d).reduce((s,t)=>s+t.total,0);
+      const biayaD=batchProduksi.filter(b=>b.tgl===d).reduce((s,b)=>s+b.totalBiaya,0)+pengeluaran.filter(p=>p.tgl===d).reduce((s,p)=>s+p.jml,0);
+      const label=new Date(d+`T00:00:00`).toLocaleDateString("id-ID",{day:"numeric",month:"numeric"});
+      return{d,omzD,biayaD,label};
+    });
+  },[dari,ke,penjualan,batchProduksi,pengeluaran]);
+  const maxVal=Math.max(...chartRange.map(c=>Math.max(c.omzD,c.biayaD)),1);
+
+  // Export CSV
+  const exportCSV=(type)=>{
+    let rows,fname;
+    if(type==="jual"){
+      rows=[["ID","Tanggal","Pembeli","Produk","Qty","Harga","Total","Metode"]];
+      jual.forEach(t=>(t.items||[]).forEach(i=>rows.push([t.id,t.tgl,t.pembeli,i.nama,i.qty,i.harga,t.total,t.metodeBayar])));
+      fname="penjualan";
+    }else{
+      rows=[["ID","Tanggal","Produk","Batch","PcsJadi","TotalBiaya","HPP"]];
+      batch.forEach(b=>{const r=resep.find(x=>x.id===b.resepId);rows.push([b.id,b.tgl,r?.namaProduk||b.resepId,b.jumlahBatch,b.pcsJadi,b.totalBiaya,b.hppPerPcs]);});
+      fname="produksi";
+    }
+    const csv="\uFEFF"+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download=`${fname}_${dari}_${ke}.csv`;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
+
+  return<div className="page-pad">
+    <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22,marginBottom:12}}>📊 Laporan & Analitik</div>
+
+    {/* Filter Periode */}
+    <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+      {CHIPS.map(c=><button key={c.val} className={`chip${periode===c.val?" active":""}`} onClick={()=>setPeriode(c.val)}>{c.label}</button>)}
+    </div>
+    {periode==="custom"&&<div className="grid2" style={{marginBottom:6}}>
+      <div className="frow"><label className="lbl">Dari</label><input className="inp" type="date" value={tglAwal} onChange={e=>handleDariChange(e.target.value)}/></div>
+      <div className="frow"><label className="lbl">Sampai</label><input className="inp" type="date" value={tglAkhir} onChange={e=>handleKeChange(e.target.value)}/></div>
+    </div>}
+    {periode==="custom"&&errCustom&&<div className="alert-banner yellow" style={{marginBottom:8}}><span>↔️</span><span>{errCustom}</span></div>}
+    <div style={{fontSize:12,color:"var(--muted)",marginBottom:14}}>Data {fmtTgl(dari)} — {fmtTgl(ke)} · {jual.length} transaksi</div>
+
+    {/* 4 Kartu */}
+    <div className="grid2" style={{marginBottom:16}}>
+      <div className="stat-card">
+        <div className="stat-lbl">💰 Omzet</div>
+        <div className="stat-val" style={{color:"var(--red)"}}>{fmtRb(omzet)}</div>
+      </div>
+      <div className="stat-card">
+        <div className="stat-lbl">🍳 Biaya Produksi</div>
+        <div className="stat-val" style={{color:"var(--orange)",fontSize:18}}>{fmtRb(biayaProd)}</div>
+      </div>
+      <div className="stat-card">
+        <div className="stat-lbl">💸 Pengeluaran</div>
+        <div className="stat-val" style={{color:"var(--muted)",fontSize:18}}>{fmtRb(biayaKeluar)}</div>
+      </div>
+      <div className="stat-card">
+        <div className="stat-lbl">📈 Est. Laba Bersih</div>
+        <div className="stat-val" style={{color:labaBersih>=0?"var(--green)":"#F87171"}}>{fmtRb(labaBersih)}</div>
+      </div>
+    </div>
+
+    {/* Bar Chart */}
+    <div className="card" style={{padding:"14px",marginBottom:16}}>
+      <div style={{fontWeight:700,fontSize:13,marginBottom:12,color:"var(--text2)"}}>📈 Tren Periode Dipilih ({chartRange.length} hari)</div>
+      <div className="bar-chart">
+        {chartRange.map((c,i)=><div key={i} className="bar-wrap">
+          <div style={{display:"flex",alignItems:"flex-end",gap:2,height:84}}>
+            <div className="bar" style={{flex:1,height:`${(c.omzD/maxVal)*84}px`,background:"var(--red)",opacity:.85,minHeight:c.omzD>0?4:0}}/>
+            <div className="bar" style={{flex:1,height:`${(c.biayaD/maxVal)*84}px`,background:"var(--orange)",opacity:.7,minHeight:c.biayaD>0?4:0}}/>
+          </div>
+          <div className="bar-lbl">{c.label}</div>
+        </div>)}
+      </div>
+      <div style={{display:"flex",gap:12,marginTop:8}}>
+        <span style={{fontSize:11,color:"var(--muted)"}}><span style={{background:"var(--red)",borderRadius:2,padding:"1px 6px",marginRight:4}}>&nbsp;</span>Omzet</span>
+        <span style={{fontSize:11,color:"var(--muted)"}}><span style={{background:"var(--orange)",borderRadius:2,padding:"1px 6px",marginRight:4}}>&nbsp;</span>Biaya</span>
+      </div>
+    </div>
+
+    {/* Top Produk */}
+    {topProd.length>0&&<div style={{marginBottom:16}}>
+      <div style={{fontWeight:700,fontSize:14,marginBottom:10,color:"var(--text2)"}}>🏆 Produk Terlaris</div>
+      {topProd.map((p,i)=><div key={p.nama} className="row-between" style={{padding:"8px 0",borderBottom:"1px solid var(--border2)"}}>
+        <div className="row"><span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:16,color:"var(--muted2)",width:24}}>{i+1}</span>
+          <span>{p.emoji}</span><span style={{fontWeight:700,fontSize:13}}>{p.nama}</span>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{color:"var(--red)",fontWeight:700}}>{p.qty} pcs</div>
+          <div style={{fontSize:12,color:"var(--muted)"}}>{fmt(p.nilai)}</div>
+        </div>
+      </div>)}
+    </div>}
+
+    {/* Analisis HPP */}
+    <div style={{marginBottom:16}}>
+      <div style={{fontWeight:700,fontSize:14,marginBottom:10,color:"var(--text2)"}}>📊 Analisis HPP vs Harga Jual</div>
+      <div style={{position:"relative"}}>
+        <div style={{overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,minWidth:380}}>
+            <thead><tr style={{background:"var(--bg2)"}}>
+              {["Produk","HPP","Ecer","Margin Ecer","Reseller","Margin RSL"].map(h=><th key={h} style={{padding:"8px 6px",textAlign:"left",color:"var(--muted)",fontWeight:700,whiteSpace:"nowrap"}}>{h}</th>)}
+            </tr></thead>
+            <tbody>{produkJadi.map(p=>{
+              const me=p.hpp>0?Math.round((p.hargaEcer-p.hpp)/p.hargaEcer*100):null;
+              const mr=p.hpp>0?Math.round((p.hargaReseller-p.hpp)/p.hargaReseller*100):null;
+              return<tr key={p.id} style={{borderBottom:"1px solid var(--border2)"}}>
+                <td style={{padding:"8px 6px",fontWeight:600,whiteSpace:"nowrap"}}>{p.emoji} {p.nama.split(" ").slice(0,2).join(" ")}</td>
+                <td style={{color:"var(--orange)",fontWeight:700}}>{p.hpp>0?fmt(p.hpp):"—"}</td>
+                <td style={{color:"var(--red)",fontWeight:700}}>{fmt(p.hargaEcer)}</td>
+                <td><span style={{color:me!=null&&me<15?"var(--orange)":"var(--green)",fontWeight:700}}>{me!=null?me+"%":"—"}{me!=null&&me<15?" ⚠️":""}</span></td>
+                <td style={{color:"var(--gold)",fontWeight:700}}>{fmt(p.hargaReseller)}</td>
+                <td><span style={{color:mr!=null&&mr<10?"var(--orange)":"var(--green)",fontWeight:700}}>{mr!=null?mr+"%":"—"}</span></td>
+              </tr>;
+            })}</tbody>
+          </table>
+        </div>
+        <div style={{position:"absolute",top:0,right:0,bottom:0,width:32,background:"linear-gradient(to right,transparent,rgba(255,248,245,.9))",pointerEvents:"none",borderRadius:"0 4px 4px 0"}}/>
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:4,textAlign:"right"}}>← geser untuk lihat semua kolom</div>
+      </div>
+    </div>
+
+    {/* Export */}
+    <div style={{fontWeight:700,fontSize:14,marginBottom:10,color:"var(--text2)"}}>📥 Export Data</div>
+    <div className="grid2">
+      <button className="btn-out" onClick={()=>exportCSV("jual")}>📥 Export Penjualan CSV</button>
+      <button className="btn-out" onClick={()=>exportCSV("prod")}>📥 Export Produksi CSV</button>
+    </div>
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   HALAMAN 10 — SETELAN
+══════════════════════════════════════════════════════ */
+function Setelan({namaUsaha,setNamaUsaha,modalAwal,setModalAwal,showToast,setKonfirm,allData}){
+  const[nama,setNama]=useState(namaUsaha);
+  const[modal,setModal]=useState(modalAwal||"");
+  const[faqOpen,setFaqOpen]=useState({});
+  const[disclaimerTmpl,setDisclaimerTmpl]=useState(()=>{
+    try{return localStorage.getItem('jd2_disclaimer')||"Simpan di kulkas maks. 5 hari atau freezer 1 bulan.\nPanaskan sebelum disajikan. Tidak mengandung pengawet.";}catch{return"";}
+  });
+
+  const simpanInfo=()=>{
+    if(modal===""||+modal<0){showToast("Modal awal tidak boleh negatif atau kosong","error");return;}
+    setNamaUsaha(nama||"JualanDapur");setModalAwal(+modal||0);showToast("Setelan disimpan ✅");
+  };
+
+  const backup=()=>{
+    const d=JSON.stringify(allData,null,2);
+    const a=document.createElement("a");a.href="data:application/json;charset=utf-8,"+encodeURIComponent(d);a.download=`jualan-dapur-backup-${todayStr}.json`;a.click();
+    showToast("Backup diunduh ✅");
+  };
+
+  const restore=(e)=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const d=JSON.parse(ev.target.result);
+        if(d.reseller)localStorage.setItem("jd2_reseller",JSON.stringify(d.reseller));
+        if(d.bahanBaku)localStorage.setItem("jd2_bahan",JSON.stringify(d.bahanBaku));
+        if(d.resep)localStorage.setItem("jd2_resep",JSON.stringify(d.resep));
+        if(d.produkJadi)localStorage.setItem("jd2_produk",JSON.stringify(d.produkJadi));
+        if(d.batchProduksi)localStorage.setItem("jd2_batch",JSON.stringify(d.batchProduksi));
+        if(d.pembelianBahan)localStorage.setItem("jd2_beli_bahan",JSON.stringify(d.pembelianBahan));
+        if(d.penjualan)localStorage.setItem("jd2_jual",JSON.stringify(d.penjualan));
+        if(d.pengeluaran)localStorage.setItem("jd2_keluar",JSON.stringify(d.pengeluaran));
+        showToast("Restore berhasil! Refresh untuk melihat data","info");
+        setTimeout(()=>window.location.reload(),1500);
+      }catch{showToast("File backup tidak valid","error");}
+    };r.readAsText(f);
+  };
+
+  const resetData=()=>{
+    backup();
+    setKonfirm({judul:"Reset Semua Data?",pesan:"Backup otomatis diunduh. Semua data akan dihapus permanen. Lanjutkan?",labelYa:"Ya, Reset",warnaYa:"#F87171",
+      onYa:()=>{
+        ["jd2_reseller","jd2_bahan","jd2_resep","jd2_produk","jd2_batch","jd2_beli_bahan","jd2_jual","jd2_keluar","jd2_onboarded","jd2_modal_awal","jd2_nama_usaha","jd2_disclaimer"].forEach(k=>localStorage.removeItem(k));
+        window.location.reload();
+      }
+    });
+  };
+
+  const FAQ=[
+    {q:"Cara catat produksi pertama",a:"Buka menu 🍳 Catat Produksi, pilih resep, isi jumlah batch dan pcs jadi, lalu simpan. Stok bahan akan otomatis berkurang dan stok produk bertambah."},
+    {q:"Kenapa HPP berubah setelah produksi baru?",a:"HPP dihitung rata-rata tertimbang dari stok lama dan batch baru. Ini memastikan HPP selalu mencerminkan biaya produksi terkini."},
+    {q:"Cara kirim laporan ke WA",a:"Di halaman Kasir setelah transaksi selesai, tap tombol '📱 Kirim Struk via WA'. Struk terformat akan langsung terbuka di WhatsApp."},
+    {q:"Cara install sebagai aplikasi di HP",a:"Di browser Chrome/Edge tap ikon menu (⋮), pilih 'Tambahkan ke Layar Utama' atau 'Install App'. Aplikasi akan muncul seperti app native."},
+    {q:"Cara mengubah harga jual produk",a:"Buka menu 📦 Stok & Produk, tap kartu produk yang ingin diubah, lalu pilih ✏️ Edit. Ubah harga ecer atau harga reseller, lalu simpan. Harga baru berlaku di transaksi berikutnya."},
+    {q:"Cara menambah reseller baru",a:"Buka menu 👥 Reseller, tap tombol '+ Tambah Reseller', isi nama, nomor WA, kota, tipe (Agen/Distributor), dan persentase diskon khusus. Setelah disimpan, nama reseller akan muncul di dropdown saat kasir."},
+    {q:"Apa itu HPP dan kenapa penting?",a:"HPP (Harga Pokok Produksi) adalah biaya yang dikeluarkan untuk membuat satu unit produk, mencakup bahan baku, tenaga, dan biaya lainnya. HPP penting agar Anda tahu margin keuntungan sebenarnya. Jika harga jual terlalu dekat dengan HPP, usaha bisa merugi."},
+    {q:"Cara membaca laporan laba bersih",a:"Di halaman 📊 Laporan, kartu 'Est. Laba Bersih' = Omzet dikurangi Biaya Produksi dan Pengeluaran operasional. Jika angkanya merah berarti periode tersebut merugi. Cek 'Margin Ecer' di tabel HPP — idealnya di atas 20%."},
+    {q:"Kenapa saldo kas saya berkurang terus?",a:"Saldo Kas = Modal Awal + Omzet Penjualan − Pembelian Bahan Baku − Pengeluaran. Jika saldo turun padahal ada penjualan, pastikan Anda sudah catat semua pembelian bahan di menu 🧂 Bahan Baku dan tidak ada pengeluaran besar yang tercatat di menu 💸 Pengeluaran."},
+    {q:"Cara backup dan restore data",a:"Buka ⚙️ Setelan → Backup & Restore. Tap '⬇️ Download Backup JSON' untuk simpan file backup ke HP. Jika ganti HP atau data hilang, tap '⬆️ Restore dari File JSON' dan pilih file backup yang sudah disimpan sebelumnya."},
+  ];
+
+  return<div className="page-pad">
+    <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:22,marginBottom:16}}>⚙️ Setelan</div>
+
+    {/* Info Usaha */}
+    <div className="card" style={{padding:16,marginBottom:16}}>
+      <div style={{fontWeight:800,fontSize:14,marginBottom:12}}>🏪 Info Usaha</div>
+      <div className="frow"><label className="lbl">Nama Usaha</label>
+        <input className="inp" value={nama} maxLength={60} onChange={e=>setNama(e.target.value)} placeholder="JualanDapur"/>
+      </div>
+      <div className="frow"><label className="lbl">Modal Awal Kas (Rp)</label>
+        <input className="inp" type="number" min="0" value={modal} onChange={e=>setModal(e.target.value)} placeholder="3000000"/>
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:3}}>Uang kas di tangan sebelum mulai berjualan</div>
+      </div>
+      <button className="btn-prime" onClick={simpanInfo}>💾 Simpan</button>
+    </div>
+
+    {/* Backup & Restore */}
+    <div className="card" style={{padding:16,marginBottom:16}}>
+      <div style={{fontWeight:800,fontSize:14,marginBottom:12}}>💾 Backup & Restore</div>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        <button className="btn-green" onClick={backup}>⬇️ Download Backup JSON</button>
+        <label className="btn-gold" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,cursor:"pointer"}}>
+          ⬆️ Restore dari File JSON
+          <input type="file" accept=".json" onChange={restore} style={{display:"none"}}/>
+        </label>
+      </div>
+    </div>
+
+    {/* Template Disclaimer Nota */}
+    <div className="card" style={{padding:16,marginBottom:16}}>
+      <div style={{fontWeight:800,fontSize:14,marginBottom:4}}>📌 Template Catatan / Disclaimer Nota</div>
+      <div style={{fontSize:12,color:"var(--muted)",marginBottom:10}}>Teks ini akan otomatis muncul sebagai saran di field catatan saat kasir membuat nota.</div>
+      <textarea className="inp" rows={4} value={disclaimerTmpl} onChange={e=>setDisclaimerTmpl(e.target.value)}
+        placeholder="Cara penyimpanan, info halal, dll..."
+        style={{resize:"vertical",fontSize:13,minHeight:90,marginBottom:10}}/>
+      <button className="btn-prime" onClick={()=>{
+        try{localStorage.setItem('jd2_disclaimer',disclaimerTmpl);}catch{}
+        showToast("Template disclaimer disimpan ✅");
+      }}>💾 Simpan Template</button>
+    </div>
+
+    {/* FAQ */}
+    <div style={{fontWeight:800,fontSize:14,marginBottom:10}}>❓ Bantuan</div>
+    {FAQ.map((f,i)=><div key={i} className="faq-item">
+      <div className="faq-q" onClick={()=>setFaqOpen(o=>({...o,[i]:!o[i]}))}>
+        <span>{f.q}</span><span style={{color:"var(--muted)"}}>{faqOpen[i]?"▲":"▼"}</span>
+      </div>
+      <div className={`faq-a${faqOpen[i]?" open":""}`}>{f.a}</div>
+    </div>)}
+
+    {/* Zona Berbahaya */}
+    <div style={{marginTop:20,padding:16,background:"rgba(248,113,113,.06)",border:"1px solid rgba(248,113,113,.2)",borderRadius:12}}>
+      <div style={{fontWeight:800,fontSize:14,color:"#B91C1C",marginBottom:8}}>🚨 Zona Berbahaya</div>
+      <div style={{fontSize:13,color:"var(--muted)",marginBottom:12}}>Reset menghapus semua data secara permanen. Backup otomatis akan diunduh terlebih dahulu.</div>
+      <button className="btn-red" onClick={resetData} style={{width:"100%"}}>🗑 Reset Semua Data</button>
+    </div>
+  </div>;
+}
+
+/* ══════════════════════════════════════════════════════
+   APP ROOT
+══════════════════════════════════════════════════════ */
+function App(){
+  const[page,setPage]=useState("dasbor");
+  const[sidebarOpen,setSidebarOpen]=useState(false);
+  const[toasts,setToasts]=useState([]);
+  const[konfirm,setKonfirm]=useState(null);
+  const[showOnboarding,setShowOnboarding]=useState(()=>!localStorage.getItem('jd2_onboarded'));
+
+  const[reseller,setReseller]=usePersist("jd2_reseller",SEED.reseller);
+  const[bahanBaku,setBahanBaku]=usePersist("jd2_bahan",SEED.bahanBaku);
+  const[resep,setResep]=usePersist("jd2_resep",SEED.resep);
+  const[produkJadi,setProdukJadi]=usePersist("jd2_produk",SEED.produkJadi);
+  const[batchProduksi,setBatchProduksi]=usePersist("jd2_batch",SEED.batchProduksi);
+  const[pembelianBahan,setPembelianBahan]=usePersist("jd2_beli_bahan",SEED.pembelianBahan);
+  const[penjualan,setPenjualan]=usePersist("jd2_jual",SEED.penjualan);
+  const[pengeluaran,setPengeluaran]=usePersist("jd2_keluar",SEED.pengeluaran);
+  const[modalAwal,setModalAwal]=usePersist("jd2_modal_awal",3000000);
+  const[namaUsaha,setNamaUsaha]=usePersist("jd2_nama_usaha","JualanDapur");
+
+  const showToast=useCallback((msg,type="success")=>{
+    const id=uid();setToasts(p=>[...p,{id,msg,type}]);
+    setTimeout(()=>setToasts(p=>p.filter(t=>t.id!==id)),2800);
+  },[]);
+
+  const totalOmzet=penjualan.reduce((s,t)=>s+t.total,0);
+  const totalBeliBahan=pembelianBahan.reduce((s,p)=>s+p.total,0);
+  const totalKeluar=pengeluaran.reduce((s,p)=>s+p.jml,0);
+  const saldo=(modalAwal||0)+totalOmzet-totalBeliBahan-totalKeluar;
+
+  const goTo=id=>{setPage(id);setSidebarOpen(false);};
+
+  useEffect(()=>{
+    const el=document.getElementById('app-loading');
+    if(el){el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400);}
+  },[]);
+
+  const cp={produkJadi,setProdukJadi,bahanBaku,setBahanBaku,resep,setResep,batchProduksi,setBatchProduksi,pembelianBahan,setPembelianBahan,penjualan,setPenjualan,pengeluaran,setPengeluaran,reseller,setReseller,namaUsaha,setNamaUsaha,modalAwal,setModalAwal,showToast,setKonfirm,goTo};
+
+  const allData={reseller,bahanBaku,resep,produkJadi,batchProduksi,pembelianBahan,penjualan,pengeluaran};
+
+  const pages={
+    dasbor:<Dasbor {...cp}/>,
+    kasir:<Kasir {...cp}/>,
+    produksi:<Produksi {...cp}/>,
+    stok:<StokProduk {...cp}/>,
+    bahan:<BahanBaku {...cp}/>,
+    resep:<ResepPage {...cp}/>,
+    reseller:<ResellerPage {...cp}/>,
+    pengeluaran:<Pengeluaran {...cp}/>,
+    laporan:<Laporan {...cp}/>,
+    setelan:<Setelan {...cp} allData={allData}/>,
+  };
+
+  return<>
+    {showOnboarding&&<Onboarding onDone={(targetPage)=>{setShowOnboarding(false);if(targetPage)goTo(targetPage);}} modalAwal={modalAwal} setModalAwal={setModalAwal} namaUsaha={namaUsaha} setNamaUsaha={setNamaUsaha}/>}
+    <ToastContainer toasts={toasts}/>
+    <KonfirmasiModal data={konfirm} onTutup={()=>setKonfirm(null)}/>
+
+    {/* Mobile Topbar — fixed position */}
+    <div className="topbar">
+      <button onClick={()=>setSidebarOpen(o=>!o)} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",minHeight:44,minWidth:44,display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text)",flexShrink:0}}>☰</button>
+      <div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:15,color:"var(--red)",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>🍱 {namaUsaha}</div>
+      <div style={{flexShrink:0,fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:14,color:saldo<0?"var(--red)":"var(--green)"}}>{fmtRb(saldo)}</div>
+    </div>
+
+    <div id="app-root-inner">
+      <div className={`overlay${sidebarOpen?" show":""}`} onClick={()=>setSidebarOpen(false)}/>
+      <Sidebar page={page} goTo={goTo} saldo={saldo} open={sidebarOpen}/>
+      <div className="main-scroll">{pages[page]||pages.dasbor}</div>
+    </div>
+
+    {page!=="produksi"&&<button className="fab" onClick={()=>goTo("produksi")} title="Catat Produksi">🍳</button>}
+  </>;
+}
+
+ReactDOM.createRoot(document.getElementById("app-root")).render(<App/>);
+</script>
+<script>
+// Register Service Worker untuk PWA + offline support
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(reg=>console.log('[SW] Registered, scope:',reg.scope))
+      .catch(err=>console.warn('[SW] Registration failed:',err));
+  });
+}
+</script>
+</body>
+</html>
